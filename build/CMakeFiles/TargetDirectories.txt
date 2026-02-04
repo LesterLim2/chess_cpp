@@ -1,0 +1,8 @@
+C:/coding!/c++/chess/build/CMakeFiles/Experimental.dir
+C:/coding!/c++/chess/build/CMakeFiles/Nightly.dir
+C:/coding!/c++/chess/build/CMakeFiles/Continuous.dir
+C:/coding!/c++/chess/build/CMakeFiles/NightlyMemoryCheck.dir
+C:/coding!/c++/chess/build/CMakeFiles/chess.dir
+C:/coding!/c++/chess/build/CMakeFiles/RUN_TESTS.dir
+C:/coding!/c++/chess/build/CMakeFiles/ALL_BUILD.dir
+C:/coding!/c++/chess/build/CMakeFiles/ZERO_CHECK.dir
