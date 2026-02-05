@@ -19,5 +19,9 @@ public:
     virtual void stateType();
 
     std::pair<int,int> getPosition();
-    virtual void statePosition();
+    void statePosition();
+
+    ColorType Piece::getColor();
+
+    virtual void move();
 };

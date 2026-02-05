@@ -6,20 +6,39 @@
 
 using namespace std;
 
-void Board::placePiece(std::unique_ptr<Piece> piece) {
+Piece* Board::getPiece(int x, int y) {
+    if (!inBounds(x, y)) return nullptr;
+    return board[x][y].get();
+}
+
+bool Board::checkSquareAvailability(int x, int y) {
+    if (!inBounds(x, y)) {
+        return false;
+    }
+    return board[x][y] == nullptr;
+}
+
+
+// scans the x and y coordinates for opposing pieces (must be in bounds and must be of the opposite color, and returns a boolean value)
+bool Board::isAvailableToCapture(ColorType color, int x, int y) {
+    if (!inBounds(x, y) || board[x][y] == nullptr) {
+        return false;
+    }
+
+    Piece* capturee = board[x][y].get();
+
+    if (capturee->getColor() == color) {
+        return false;
+    }
+
+    return true;
+}
+
+void Board::placePiece(unique_ptr<Piece> piece){
     pair<int,int> position = piece->getPosition();
     int x = position.first;
     int y = position.second;
-
-    if (!inBounds(x, y)) {
-        throw std::out_of_range("x and y must be between 0 and 7");
-    }
-
-    if (board[x][y]) {
-        throw std::runtime_error("Space already occupied");
-    }
-
-    board[x][y] = std::move(piece);
+    board[x][y] = move(piece);
 }
 
 void Board::stateBoard(){
@@ -29,7 +48,10 @@ void Board::stateBoard(){
                 cout << "no piece exists at (" <<i << "," << j << ")" <<endl;
             }
             else{
-                cout << "piece exists at" << i << j << endl;
+                Piece* p = board[i][j].get();
+               
+                p->stateType();
+                cout  << "and i am at" << "(" << i << "," << j << ")" <<  endl;
             }
         }
     }

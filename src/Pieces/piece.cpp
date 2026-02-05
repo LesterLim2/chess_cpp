@@ -8,13 +8,16 @@ using namespace std;
 unique_ptr<Piece> board[8][8];
 //constructor for regular pieces, position is loaded at 10 initially to simulate out of bounds
 Piece::Piece(ColorType color, PieceType type, std::pair<int,int> position)
-    : color(color), type(type), position(position) {
-    }
+    : color(color), type(type), position(position) {}
 
 Piece::Piece(std::pair<int,int> position)
     : color(ColorType::None), type(PieceType::None), position(position) {}
+
 void Piece::stateType() {
     std::cout << "I am a generic piece\n";
+}
+ColorType Piece::getColor(){
+    return color;
 }
 
 void Piece::statePosition() {
@@ -26,3 +29,6 @@ pair<int,int> Piece::getPosition(){
     return this->position;
 }
 
+void Piece::move(){
+    cout << "I am moving!";
+}
