@@ -2,6 +2,7 @@
 #include <vector>
 #include "types.h"
 #include "piece.h"
+#include "board.h"
 
 using namespace std;
 
@@ -26,6 +27,11 @@ void Piece::statePosition() {
 }
 pair<int,int> Piece::getPosition(){
     return this->position;
+}
+
+//when moving, first set the position of the piece object to the new coordinates (int x, int y), then in a seperate function call (probably in the player class) call
+void Piece::setPositon(int x,int y){
+    position = {x, y};
 }
 
 void Piece::move(){

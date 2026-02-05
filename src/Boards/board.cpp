@@ -11,6 +11,26 @@ Piece* Board::getPiece(int x, int y) {
     return board[x][y].get();
 }
 
+//used for actual piece movement in game, function is dumb to make it general for any piece to use, and thus needs 
+//to be carefull managed, kinda violates SRP though, so might be refactored, idk.
+//input parameters: original xy coordinate and updated
+void Board::movePiece(int originalX,int originalY,int newX,int newY){
+    if (!inBounds(originalX,originalY) || !inBounds(newX,newY)){
+        throw runtime_error("out of bounds");
+    }
+    Piece* original = board[originalX][originalY].get();
+    if (original == nullptr){
+        throw runtime_error("original piece not found");
+    }
+    Piece* newPiece = board[newX][newY].get();
+    if (newPiece){
+        //capture logic
+        return;
+    }
+    board[newX][newY] = move(board[originalX][originalY]);
+    board[newX][newY]->setPositon(newX,newY);
+    return;
+}
 bool Board::checkSquareAvailability(int x, int y) {
     if (!inBounds(x, y)) {
         return false;

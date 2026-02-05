@@ -37,15 +37,15 @@ void Pawn::checkCapture(Board& board){
     ColorType color = this->color;
 
     int dir = (color == ColorType::White) ? 1 : -1;
-    int curSize = availableSquaresToMove.size();
+    int curSize = static_cast<int>(availableSquaresToMove.size());
 
     if (board.isAvailableToCapture(color,x + 1, y + dir)){
         availableSquaresToMove.push_back({{x + 1,y + dir},moveType::Capture});
-        cout << "piece is available for capture at coordinates " << x + 1<< y + 1<< endl;
+        cout << "piece is available for capture at coordinates " << x + 1<< y + dir<< endl;
     }
     if (board.isAvailableToCapture(color,x - 1, y + dir)){
         availableSquaresToMove.push_back({{x - 1,y + dir},moveType::Capture});
-        cout << "piece is available for capture at coordinates " << x - 1 << y + 1 << endl;
+        cout << "piece is available for capture at coordinates " << x - 1 << y + dir << endl;                                  
     }
     if (curSize == availableSquaresToMove.size()){
         cout << "no available pieces to capture";

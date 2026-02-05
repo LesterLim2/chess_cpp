@@ -1,5 +1,6 @@
 #pragma once
 #include "types.h"
+#include "board.h"
 #include <utility>
 
 class Piece {
@@ -20,6 +21,7 @@ public:
 
     std::pair<int,int> getPosition();
     void statePosition();
+    void setPositon(int x,int y);
 
     ColorType Piece::getColor();
 

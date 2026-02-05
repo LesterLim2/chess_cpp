@@ -14,10 +14,11 @@ public:
     }
     Piece* getPiece(int x, int y);
 
-    bool Board::isAvailableToCapture(ColorType color, int x, int y);
+    bool isAvailableToCapture(ColorType color, int x, int y);
     bool checkSquareAvailability(int x, int y);
 
     void placePiece(std::unique_ptr<Piece> piece);
+    void movePiece(int originalX,int originalY,int newX,int newY);
 
     void stateBoard();
 };

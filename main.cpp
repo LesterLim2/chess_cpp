@@ -38,15 +38,8 @@ int main() {
     board.placePiece(std::move(blackPawnLeft));
     board.placePiece(std::move(whiteBlocker));
 
-    // Get the pawn back from the board
-    Pawn* pawn = dynamic_cast<Pawn*>(board.getPiece(3, 1));
-    if (!pawn) {
-        std::cout << "ERROR: Pawn not found on board\n";
-        return 1;
-    }
 
-    std::cout << "Checking capture moves for pawn at (3,1)\n";
-    pawn->checkCapture(board);
+    board.movePiece(3, 1, 3, 7);
 
     board.stateBoard();
 
