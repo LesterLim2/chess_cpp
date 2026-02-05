@@ -1,6 +1,7 @@
 #include "pawn.h"
 #include "board.h"
 #include "types.h"
+
 #include <iostream>
 #include <utility>
 #include <vector>
@@ -15,12 +16,14 @@ void Pawn::checkMovement(Board& board){
     int y = position.second;
     ColorType color = this->color;
 
-    if (board.checkSquareAvailability(x, y + 1)) {
-        availableSquaresToMove.push_back({{x, y + 1},moveType::Move});
+    int dir = (color == ColorType::White) ? 1 : -1;
+
+    if (board.checkSquareAvailability(x, y + dir)) {
+        availableSquaresToMove.push_back({{x, y + dir},moveType::Move});
     }
 
-    if (!hasMoved && board.checkSquareAvailability(x, y + 2)) {
-        availableSquaresToMove.push_back({{x, y + 2},moveType::Move});
+    if (!hasMoved && board.checkSquareAvailability(x, y + dir) && board.checkSquareAvailability(x, y + (dir * 2))) {
+        availableSquaresToMove.push_back({{x, y + (dir * 2)},moveType::Move});
     }
 
     if (availableSquaresToMove.empty()){
@@ -31,14 +34,21 @@ void Pawn::checkMovement(Board& board){
 void Pawn::checkCapture(Board& board){
     int x = position.first;
     int y = position.second;
-    
-    if (board.isAvailableToCapture(color,x + 1, y + 1)){
-        availableSquaresToMove.push_back({{x,y + 1},moveType::Capture});
-        cout << "piece is available for capture at coordinates" << x  + 1<< y + 1<< endl;
+    ColorType color = this->color;
+
+    int dir = (color == ColorType::White) ? 1 : -1;
+    int curSize = availableSquaresToMove.size();
+
+    if (board.isAvailableToCapture(color,x + 1, y + dir)){
+        availableSquaresToMove.push_back({{x + 1,y + dir},moveType::Capture});
+        cout << "piece is available for capture at coordinates " << x + 1<< y + 1<< endl;
     }
-    if (board.isAvailableToCapture(color,x - 1, y + 1)){
-        availableSquaresToMove.push_back({{x,y + 1},moveType::Capture});
-        cout << "piece is available for capture at coordinates" << x - 1 << y + 1 << endl;
+    if (board.isAvailableToCapture(color,x - 1, y + dir)){
+        availableSquaresToMove.push_back({{x - 1,y + dir},moveType::Capture});
+        cout << "piece is available for capture at coordinates " << x - 1 << y + 1 << endl;
+    }
+    if (curSize == availableSquaresToMove.size()){
+        cout << "no available pieces to capture";
     }
 }
 

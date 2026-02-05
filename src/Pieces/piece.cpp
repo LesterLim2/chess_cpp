@@ -5,7 +5,6 @@
 
 using namespace std;
 
-unique_ptr<Piece> board[8][8];
 //constructor for regular pieces, position is loaded at 10 initially to simulate out of bounds
 Piece::Piece(ColorType color, PieceType type, std::pair<int,int> position)
     : color(color), type(type), position(position) {}
