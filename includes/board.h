@@ -1,14 +1,17 @@
 #pragma once
 
 #include <iostream>
+#include <memory>
+#include <array>
 #include "types.h"
 class Piece;
 
 class Board {
 private:
-    std::unique_ptr<Piece> board[8][8];
+    std::vector<std::vector<std::unique_ptr<Piece>>> board;
 
 public:
+    Board();
     bool inBounds(int x, int y) {
         return x >= 0 && x <= 7 && y >= 0 && y <= 7;
     }
