@@ -1,3 +1,4 @@
+# CMake
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -11,10 +12,30 @@ CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
 build/
+out/
+
+# C++ build artifacts
 *.exe
 *.obj
+*.o
 *.pdb
 *.ilk
 *.tlog
-.claude/
+*.log
+*.out
+*.i
+*.s
+
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# IDE files
 .vscode/
+.idea/
+
+# Claude Code
+.claude/
