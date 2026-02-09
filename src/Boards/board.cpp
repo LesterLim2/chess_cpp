@@ -1,10 +1,8 @@
 #include <iostream>
 #include <utility>
+#include <stdexcept>
 
 #include "board.h"
-#include "piece.h"
-
-using namespace std;
 
 
 Board::Board() {
@@ -13,41 +11,48 @@ Board::Board() {
     }
 }
 
+
 Piece* Board::getPiece(int x, int y) {
-    if (!inBounds(x, y)) return nullptr;
+    if (!isInBounds(x, y)) return nullptr;
     return board[x][y].get();
 }
 
-//used for actual piece movement in game, function is dumb to make it general for any piece to use, and thus needs 
-//to be carefully managed. 
-void Board::movePiece(int originalX,int originalY,int newX,int newY){
-    if (!inBounds(originalX,originalY) || !inBounds(newX,newY)){
-        throw runtime_error("out of bounds");
+
+void Board::movePiece(int originalX, int originalY, int newX, int newY,DangerMap& dangerMap) {
+    if (!isInBounds(originalX, originalY) || !isInBounds(newX, newY)) {
+        throw std::runtime_error("out of bounds");
     }
-    Piece* original = board[originalX][originalY].get();
-    if (original == nullptr){
-        throw runtime_error("original piece not found");
+    Piece* original = getPiece(originalX,originalY);
+    if (original == nullptr) {
+        throw std::runtime_error("original piece not found");
     }
-    Piece* newPiece = board[newX][newY].get();
-    if (newPiece){
-        board[newX][newY] = nullptr;
+    ColorType color = original->getColor();
+
+    for (auto& tile : original->getDangerTiles()){
+        int curX = tile.first;
+        int curY = tile.second;
+        dangerMap.removeDanger(curX,curY,color);
     }
-    board[newX][newY] = move(board[originalX][originalY]);
-    board[originalX][originalY] = nullptr;
-    board[newX][newY]->setPosition(newX,newY);
-    return;
+    original->setDangerTiles({});
+
+    board[newX][newY] = std::move(board[originalX][originalY]);
+    board[originalX][originalY].reset();
+    board[newX][newY]->setPosition(newX, newY);
+
+    dangerMap.insertDanger(board[newX][newY].get(),*this);
 }
+
+
 bool Board::checkSquareAvailability(int x, int y) {
-    if (!inBounds(x, y)) {
+    if (!isInBounds(x, y)) {
         return false;
     }
-    return board[x][y] == nullptr;
+    return !board[x][y];
 }
 
 
-// scans the x and y coordinates for opposing pieces (must be in bounds and must be of the opposite color, and returns a boolean value)
 bool Board::isAvailableToCapture(ColorType color, int x, int y) {
-    if (!inBounds(x, y) || board[x][y] == nullptr) {
+    if (!isInBounds(x, y) || board[x][y] == nullptr) {
         return false;
     }
     Piece* capturee = board[x][y].get();
@@ -57,27 +62,46 @@ bool Board::isAvailableToCapture(ColorType color, int x, int y) {
     return true;
 }
 
-//used for game initalisation, manual placing of pieces.
-void Board::placePiece(unique_ptr<Piece> piece){
-    pair<int,int> position = piece->getPosition();
+
+void Board::placePiece(Piece* piece,DangerMap& dangerMap) {
+    std::pair<int, int> position = piece->getPosition();
     int x = position.first;
     int y = position.second;
-    board[x][y] = move(piece);
+    if (!isInBounds(x,y)) throw std::runtime_error("piece not in bounds");
+    board[x][y] = std::unique_ptr<Piece>(piece);
+    
+    dangerMap.insertDanger(piece, *this);
 }
 
-//iterates through board and prints out its elements, needs to be refactored.
-void Board::stateBoard(){
-    for(int i = 0; i < 8; i++){
-        for (int j = 0 ; j < 8 ; j++){
-            if (!board[i][j]){
-                cout << "no piece exists at (" <<i << "," << j << ")" <<endl;
-            }
-            else{
-                Piece* p = board[i][j].get();
-               
-                p->stateType();
-                cout  << "and i am at" << "(" << i << "," << j << ")" <<  endl;
+//when a piece is captured run this code
+void Board::removePiece(Piece* piece, DangerMap& dangerMap){
+    std::pair<int, int> position = piece->getPosition();
+    int x = position.first;
+    int y = position.second;
+
+    if (!isInBounds(x,y)) throw std::runtime_error("piece not in bounds");
+
+    ColorType color = piece->getColor();
+    std::vector<std::pair<int,int>> dangerTiles = piece->getDangerTiles();
+
+    for (auto& tile : dangerTiles){
+        int curX = tile.first;
+        int curY = tile.second;
+        dangerMap.removeDanger(curX,curY,color);
+    }
+    board[x][y].reset();
+}
+
+
+void Board::stateBoard() {
+    for (int i = 7; i >= 0; i--) {
+        for (int j = 0; j < 8; j++) {
+            if (!board[i][j]) {
+                std::cout << ".";
+            } else {
+                std::cout << "p";
             }
         }
+        std::cout << std::endl;
     }
 }

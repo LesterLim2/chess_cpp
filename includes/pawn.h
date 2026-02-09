@@ -1,6 +1,6 @@
 #pragma once
 
-#include <piece.h>
+#include "piece.h"
 #include <utility>
 #include <vector>
 
@@ -19,4 +19,6 @@ public:
     void checkCapture(Board& board);
 
     void promotion();
+
+    void addDangerTiles(Board& board) override;
 };

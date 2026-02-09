@@ -4,7 +4,10 @@
 #include <memory>
 #include <array>
 #include "types.h"
+#include "dangerMap.h"
 class Piece;
+
+class DangerMap;
 
 class Board {
 private:
@@ -12,7 +15,7 @@ private:
 
 public:
     Board();
-    bool inBounds(int x, int y) {
+    bool isInBounds(int x, int y) {
         return x >= 0 && x <= 7 && y >= 0 && y <= 7;
     }
     Piece* getPiece(int x, int y);
@@ -20,8 +23,9 @@ public:
     bool isAvailableToCapture(ColorType color, int x, int y);
     bool checkSquareAvailability(int x, int y);
 
-    void placePiece(std::unique_ptr<Piece> piece);
-    void movePiece(int originalX,int originalY,int newX,int newY);
+    void placePiece(Piece* piece,DangerMap& DangerMap);
+    void movePiece(int originalX,int originalY,int newX,int newY, DangerMap& dangerMap);
 
     void stateBoard();
+    void removePiece(Piece* piece,DangerMap& dangerMap);
 };

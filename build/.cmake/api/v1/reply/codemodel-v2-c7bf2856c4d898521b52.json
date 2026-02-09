@@ -93,7 +93,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "chess::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-chess-Debug-050feeca3f98274b1e63.json",
+					"jsonFile" : "target-chess-Debug-67ce6dde30d2fe78e9a5.json",
 					"name" : "chess",
 					"projectIndex" : 0
 				}
@@ -191,7 +191,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "chess::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-chess-Release-5e310e0cbb631aab17df.json",
+					"jsonFile" : "target-chess-Release-7a9dd946dcffa6bac717.json",
 					"name" : "chess",
 					"projectIndex" : 0
 				}
@@ -289,7 +289,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "chess::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-chess-MinSizeRel-a22a492c01c9342bc836.json",
+					"jsonFile" : "target-chess-MinSizeRel-6cf0cc10788b280fd673.json",
 					"name" : "chess",
 					"projectIndex" : 0
 				}
@@ -387,7 +387,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "chess::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-chess-RelWithDebInfo-e3558689f204d39c7962.json",
+					"jsonFile" : "target-chess-RelWithDebInfo-a495faad49da10ecc6cf.json",
 					"name" : "chess",
 					"projectIndex" : 0
 				}

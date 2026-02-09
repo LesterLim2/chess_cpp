@@ -330,6 +330,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="C:\coding!\c++\chess\main.cpp" />
     <ClCompile Include="C:\coding!\c++\chess\src\Boards\board.cpp" />
+    <ClCompile Include="C:\coding!\c++\chess\src\Boards\dangerMap.cpp" />
     <ClCompile Include="C:\coding!\c++\chess\src\Pieces\piece.cpp" />
     <ClCompile Include="C:\coding!\c++\chess\src\Pieces\pawn.cpp" />
   </ItemGroup>

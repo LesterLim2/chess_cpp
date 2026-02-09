@@ -7,6 +7,9 @@
     <ClCompile Include="C:\coding!\c++\chess\src\Boards\board.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\coding!\c++\chess\src\Boards\dangerMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\coding!\c++\chess\src\Pieces\piece.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -7,6 +7,7 @@ enable_testing()
 add_executable(chess
     main.cpp
     src/Boards/board.cpp
+    src/Boards/dangerMap.cpp
     src/Pieces/piece.cpp
     src/Pieces/pawn.cpp
 )
