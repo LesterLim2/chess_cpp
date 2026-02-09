@@ -23,9 +23,9 @@ public:
     bool isAvailableToCapture(ColorType color, int x, int y);
     bool checkSquareAvailability(int x, int y);
 
-    void placePiece(Piece* piece,DangerMap& DangerMap);
-    void movePiece(int originalX,int originalY,int newX,int newY, DangerMap& dangerMap);
+    void placePiece(Piece* piece);
+    void movePiece(int originalX,int originalY,int newX,int newY);
 
     void stateBoard();
-    void removePiece(Piece* piece,DangerMap& dangerMap);
+    void removePiece(Piece* piece);
 };

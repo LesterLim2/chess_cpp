@@ -17,7 +17,7 @@ private:
 public:
 
     DangerMap();
-    void insertDanger(Piece* piece, Board& board);
+    void insertDanger(Piece* piece);
 
     void removeDanger(int x, int y, ColorType color);
     

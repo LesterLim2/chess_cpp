@@ -18,7 +18,7 @@ Piece* Board::getPiece(int x, int y) {
 }
 
 
-void Board::movePiece(int originalX, int originalY, int newX, int newY,DangerMap& dangerMap) {
+void Board::movePiece(int originalX, int originalY, int newX, int newY) {
     if (!isInBounds(originalX, originalY) || !isInBounds(newX, newY)) {
         throw std::runtime_error("out of bounds");
     }
@@ -26,20 +26,10 @@ void Board::movePiece(int originalX, int originalY, int newX, int newY,DangerMap
     if (original == nullptr) {
         throw std::runtime_error("original piece not found");
     }
-    ColorType color = original->getColor();
-
-    for (auto& tile : original->getDangerTiles()){
-        int curX = tile.first;
-        int curY = tile.second;
-        dangerMap.removeDanger(curX,curY,color);
-    }
-    original->setDangerTiles({});
 
     board[newX][newY] = std::move(board[originalX][originalY]);
     board[originalX][originalY].reset();
     board[newX][newY]->setPosition(newX, newY);
-
-    dangerMap.insertDanger(board[newX][newY].get(),*this);
 }
 
 
@@ -63,32 +53,22 @@ bool Board::isAvailableToCapture(ColorType color, int x, int y) {
 }
 
 
-void Board::placePiece(Piece* piece,DangerMap& dangerMap) {
+void Board::placePiece(Piece* piece) {
     std::pair<int, int> position = piece->getPosition();
     int x = position.first;
     int y = position.second;
     if (!isInBounds(x,y)) throw std::runtime_error("piece not in bounds");
     board[x][y] = std::unique_ptr<Piece>(piece);
-    
-    dangerMap.insertDanger(piece, *this);
 }
 
 //when a piece is captured run this code
-void Board::removePiece(Piece* piece, DangerMap& dangerMap){
+void Board::removePiece(Piece* piece){
     std::pair<int, int> position = piece->getPosition();
     int x = position.first;
     int y = position.second;
 
     if (!isInBounds(x,y)) throw std::runtime_error("piece not in bounds");
 
-    ColorType color = piece->getColor();
-    std::vector<std::pair<int,int>> dangerTiles = piece->getDangerTiles();
-
-    for (auto& tile : dangerTiles){
-        int curX = tile.first;
-        int curY = tile.second;
-        dangerMap.removeDanger(curX,curY,color);
-    }
     board[x][y].reset();
 }
 

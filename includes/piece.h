@@ -35,6 +35,6 @@ public:
     virtual std::vector<std::pair<int,int>> getDanger();
 
     virtual void addDangerTiles(Board& board);
-    std::vector<std::pair<int,int>> getDangerTiles();
     void setDangerTiles(std::vector<std::pair<int,int>> tiles);
+    std::vector<std::pair<int,int>> getDangerTiles();
 };

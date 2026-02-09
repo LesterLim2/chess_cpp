@@ -1,6 +1,4 @@
 #include "pawn.h"
-#include "board.h"
-#include "types.h"
 
 #include <iostream>
 #include <utility>
@@ -10,6 +8,7 @@ Pawn::Pawn(ColorType c, std::pair<int,int> p)
     : Piece(c, PieceType::Pawn, p, {{1,1},{-1,1}}) {}
 
 
+// needs to be refactored (shift to front end)
 void Pawn::checkMovement(Board& board){
     int x  = position.first;
     int y = position.second;
@@ -30,7 +29,7 @@ void Pawn::checkMovement(Board& board){
     }
 } 
 
-
+//needs to be refactored, (shift to front end)
 void Pawn::checkCapture(Board& board){
     int x = position.first;
     int y = position.second;

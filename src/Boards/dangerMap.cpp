@@ -8,9 +8,8 @@ DangerMap::DangerMap()
     : dangerMap(8, std::vector<dangerType>(8)) {}
 
 
-void DangerMap::insertDanger(Piece* piece,Board& board) {
-    piece->addDangerTiles(board);
-    std::vector<std::pair<int,int>> dangerTiles = piece->getDangerTiles(); 
+void DangerMap::insertDanger(Piece* piece) {
+    std::vector<std::pair<int,int>> dangerTiles = piece->getDangerTiles();
 
     for (auto& tile : dangerTiles){
         int x = tile.first;
@@ -34,7 +33,6 @@ void DangerMap::removeDanger(int x, int y, ColorType color){
     }
 
 }
-
 
 void DangerMap::stateDangerMap(){
     for (int y = 7; y >= 0; --y) {
