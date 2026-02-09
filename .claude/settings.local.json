@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(\"c:\\\\coding!\\\\c++\\\\chess\\\\build\\\\Debug\\\\chess.exe\")"
-    ]
-  }
-}
