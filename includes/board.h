@@ -3,8 +3,8 @@
 #include <iostream>
 #include <memory>
 #include <array>
-#include "types.h"
-#include "dangerMap.h"
+
+#include "piece.h"
 class Piece;
 
 class DangerMap;

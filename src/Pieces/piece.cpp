@@ -16,9 +16,17 @@ void Piece::stateType() {
     std::cout << "I am a generic piece\n";
 }
 
-
+//function is called when piece is moved (used for checkmate threats)
 void Piece::addDangerTiles(Board& board){
     std::cout << "i'm not supposed to do anything yet!" << std::endl;
+}
+
+//function is called when a piece is moved
+void Piece::removeDangerTiles(DangerMap& dangerMap){
+    for(auto& danger:dangerTiles){
+        dangerMap.removeDanger(position.first,position.second,color);
+    }
+    dangerTiles = {};
 }
 
 

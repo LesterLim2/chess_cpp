@@ -6,10 +6,12 @@
 
 class Board;
 
-class Bishop : Piece{
+class Bishop :public Piece{
 private:
-    void addDangerTiles(Board& board) override;
+    std::vector<std::pair<int,int>> directions = {{1,1},{1,-1},{-1,1},{-1,-1}};
 public:
+    Bishop(ColorType color,std::pair<int,int> position);
+    void addDangerTiles(Board& board) override;
 
 
 };

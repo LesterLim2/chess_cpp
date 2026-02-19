@@ -5,7 +5,11 @@
 #include <vector>
 
 Pawn::Pawn(ColorType c, std::pair<int,int> p)
-    : Piece(c, PieceType::Pawn, p, {{1,1},{-1,1}}) {}
+    : Piece(c, PieceType::Pawn, p, 
+            c == ColorType::White ? 
+                std::vector<std::pair<int,int>>{{1,1},{-1,1}} :   
+                std::vector<std::pair<int,int>>{{1,-1},{-1,-1}}   
+           ) {}
 
 
 // needs to be refactored (shift to front end)
@@ -55,13 +59,23 @@ void Pawn::checkCapture(Board& board){
 void Pawn::addDangerTiles(Board& board){
     int curX = position.first;
     int curY = position.second;
-    dangerTiles.push_back({curX,curY});
 
     for (auto& dir : danger){
         int x = dir.first;
         int y = dir.second;
         if (board.isInBounds(curX + x,curY + y)){
-            dangerTiles.push_back({curX + x, curY + y});
+            Piece* piece = board.getPiece(curX + x,curY + y);
+            if (piece == nullptr){
+                dangerTiles.push_back({curX + x, curY + y});
+            }
+            else{
+                if (piece->getColor() != color){
+                    if (piece->getType() == PieceType::King){
+                        //checkmate logic
+                    }
+                    dangerTiles.push_back({curX + x,curY + y});
+                }
+            }
         }
     }
 }
