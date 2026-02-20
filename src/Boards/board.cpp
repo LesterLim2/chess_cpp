@@ -3,6 +3,8 @@
 #include <stdexcept>
 
 #include "board.h"
+#include "pawn.h"
+#include "types.h"
 
 
 Board::Board() {
@@ -53,12 +55,12 @@ bool Board::isAvailableToCapture(ColorType color, int x, int y) {
 }
 
 
-void Board::placePiece(Piece* piece) {
+void Board::placePiece(std::unique_ptr<Piece> piece) {
     std::pair<int, int> position = piece->getPosition();
     int x = position.first;
     int y = position.second;
     if (!isInBounds(x,y)) throw std::runtime_error("piece not in bounds");
-    board[x][y] = std::unique_ptr<Piece>(piece);
+    board[x][y] = std::move(piece);
 }
 
 //when a piece is captured run this code
@@ -72,6 +74,33 @@ void Board::removePiece(Piece* piece){
     board[x][y].reset();
 }
 
+//called when the game begins
+void Board::generateBoard(){
+    for(int i = 0; i < 8; i++){
+        for(int j = 0 ; j < 8;j++){
+            switch(i){
+                case(0):
+                    PieceType type = stringToPieceType[backRowVector[j]];
+                    std::cout<< "Row " << i << "generated" << std::endl;
+                    break;
+                case(1):
+                    placePiece(std::make_unique<Pawn>(ColorType::White, std::pair<int,int> {i,j}));
+                    std::cout<< "Row " << i << "generated" << std::endl;
+                    break;
+                case(6):
+                    placePiece(std::make_unique<Pawn>(ColorType::Black, std::pair<int,int> {i,j}));
+                    std::cout<< "Row " << i << "generated" << std::endl;
+                    break;
+                case(7):
+                    std::cout<< "Row " << i << "generated" << std::endl;
+                    break;
+                default:
+                    std::cout << "Row " << i << "passed" << std::endl;
+            }
+        }
+    }
+    stateBoard();
+}
 
 void Board::stateBoard() {
     for (int i = 7; i >= 0; i--) {

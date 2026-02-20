@@ -1,21 +1,24 @@
-from flask import Flask, render_template
+from flask import Flask, render_template ,request
 import requests
 
 app = Flask(__name__)
+CPP_BASE = 'http://127.0.0.1:8080'
+session = requests.Session()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('board.html')
 
-@app.route('/click-button')
-def click_button():
-    # Send HTTP request to C++ backend
-    response = requests.post('http://localhost:8080/button-clicked')
-    return f"C++ responded: {response.text}"
-
-@app.route('/tile-clicked')
+@app.route('/tile-clicked',methods = ["GET"])
 def tile_clicked():
-    return
+    tile_parameters = {
+        'row' : request.args.get('row'),
+        'col' : request.args.get('col'),
+        'pieceType' : request.args.get('pieceType'),
+        'colorType' : request.args.get('colorType'),
+    }
+    response = session.get(f'{CPP_BASE}/tile-clicked', params=tile_parameters)
+    return response.text
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

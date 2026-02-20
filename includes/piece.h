@@ -1,6 +1,5 @@
 #pragma once
 #include "types.h"
-#include "board.h"
 #include "dangerMap.h"
 #include <utility>
 #include <vector>

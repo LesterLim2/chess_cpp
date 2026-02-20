@@ -3,11 +3,9 @@
 #include <iostream>
 #include <vector>
 
-#include "piece.h"
-
 class Board;
-
 class Piece;
+enum class ColorType;
 
 class DangerMap{
 private:

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "utility"
 #include "bishop.h"
+#include "board.h"
 
 
 Bishop::Bishop(ColorType color, std::pair<int,int> position)

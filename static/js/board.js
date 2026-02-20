@@ -4,7 +4,7 @@ function Piece(color,type,position){
     this.position = position;
 }
 
-const pieceArray = Array.from({length : 8}, () => [null,null,null,null,null,null,null,null]);
+const pieceArray = Array.from({length : 8}, () => Array(8).fill(null));
 const backRowsArray = ["Rook","Knight","Bishop","Queen","King","Bishop","Knight","Rook"];
 document.addEventListener('DOMContentLoaded',function(){
     const board = document.getElementById('chessBoard');
@@ -37,13 +37,44 @@ document.addEventListener('DOMContentLoaded',function(){
     }
 })
 
+const selectedPieces = [];
+async function onTileClicked(row,col){
+    let piece = pieceArray[row][col];
+    checkSelected(row,col,piece);
 
-function onTileClicked(row,col){
-    console.log(`Tile row: ${row} col: ${col} clicked`)
-    if(pieceArray[row][col] != null){
-        let piece = pieceArray[row][col];
-        console.log(`tile contains pieceType ${piece.type} and colorType ${piece.color}`);
+    let url = `/tile-clicked?row=${row}&col=${col}`
+        + `&pieceType=${piece ? piece.type : "None"}&colorType=${piece ? piece.color : "None"}`;
+    const response = await fetch(url);
+    const text = await response.text();
+    console.log(text);
+}
+
+function checkSelected(row,col,piece){
+    let tile = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    //there is a typeError and i know why but it seems like such a huge hassle to fix LOL, it still works LMAO
+    if(selectedPieces.length == 0 && piece != null){
+        console.log(selectedPieces);
+        selectedPieces.push([row,col]);
+        tile.classList.add("selected")
     }
+    else{
+        let [x,y] = selectedPieces[0];
+        if ((x == row) && (y == col)){
+            //if double click the same piece
+            selectedPieces.pop();
+            tile.classList.remove("selected");
+        }
+        else{
+            selectedPieces.pop();
+            let originalTile = document.querySelector(`[data-row="${x}"][data-col="${y}"]`);
+            originalTile.classList.remove("selected");
+            
+            selectedPieces.push([row,col]);
+            tile.classList.add("selected");
+        }
+        console.log(selectedPieces);
+    }
+    
 }
 
 const typeToText = {

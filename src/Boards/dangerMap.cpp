@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "dangerMap.h"
+#include "piece.h"
 
 
 DangerMap::DangerMap()
