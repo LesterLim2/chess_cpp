@@ -4,6 +4,7 @@
 
 #include "board.h"
 #include "pawn.h"
+#include "bishop.h"
 #include "types.h"
 
 
@@ -15,7 +16,7 @@ Board::Board() {
 
 
 Piece* Board::getPiece(int x, int y) {
-    if (!isInBounds(x, y)) return nullptr;
+    if (!isInBounds(x, y) || board[x][y] == nullptr) return nullptr;
     return board[x][y].get();
 }
 
@@ -80,7 +81,7 @@ void Board::generateBoard(){
         for(int j = 0 ; j < 8;j++){
             switch(i){
                 case(0):
-                    PieceType type = stringToPieceType[backRowVector[j]];
+                    backRowPlace(i,j);
                     std::cout<< "Row " << i << "generated" << std::endl;
                     break;
                 case(1):
@@ -92,6 +93,7 @@ void Board::generateBoard(){
                     std::cout<< "Row " << i << "generated" << std::endl;
                     break;
                 case(7):
+                    backRowPlace(i,j);
                     std::cout<< "Row " << i << "generated" << std::endl;
                     break;
                 default:
@@ -102,6 +104,29 @@ void Board::generateBoard(){
     stateBoard();
 }
 
+void Board::backRowPlace(int row, int col){
+    ColorType color = row == 0 ? ColorType::White : ColorType::Black;
+    std::pair<int,int> pos = std::make_pair(row, col);
+
+    switch(col){
+        case 0: // place Rook at pos with color
+        case 7: // place Rook at pos with color
+            break;
+        case 1: // place Knight at pos with color
+        case 6: // place Knight at pos with color
+            break;
+        case 2: // place Bishop at pos with color
+            placePiece(std::make_unique<Bishop>(color, std::make_pair(row,col)));
+            break;
+        case 5: // place Bishop at pos with color
+            placePiece(std::make_unique<Bishop>(color, std::make_pair(row,col)));
+            break;
+        case 3: // place Queen at pos with color
+            break;
+        case 4: // place King at pos with color
+            break;
+    }
+}
 void Board::stateBoard() {
     for (int i = 7; i >= 0; i--) {
         for (int j = 0; j < 8; j++) {

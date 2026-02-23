@@ -12,6 +12,8 @@ class DangerMap;
 class Board {
 private:
     std::vector<std::vector<std::unique_ptr<Piece>>> board;
+protected:
+    std::unique_ptr<Piece> createPiece(int x,int y,std::string color,std::string type);
 
 public:
     Board();
@@ -30,4 +32,5 @@ public:
     void removePiece(Piece* piece);
 
     void generateBoard();
+    void backRowPlace(int row, int col);
 };

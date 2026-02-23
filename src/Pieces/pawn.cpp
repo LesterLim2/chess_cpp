@@ -13,53 +13,59 @@ Pawn::Pawn(ColorType c, std::pair<int,int> p)
            ) {}
 
 
-// needs to be refactored (shift to front end)
-void Pawn::checkMovement(Board& board){
-    int x  = position.first;
-    int y = position.second;
+std::vector<std::pair<int,int>> Pawn::checkPreMoves(Board& board){
+    std::vector<std::pair<int,int>> availablePreMoves = {};
+    checkMovement(board,availablePreMoves);
+    checkCapture(board,availablePreMoves);
+    return availablePreMoves;
+}
+
+void Pawn::checkMovement(Board& board, std::vector<std::pair<int,int>>& availablePreMoves){
+    int x = position.second; // col
+    int y = position.first;  // row
     ColorType color = this->color;
 
     int dir = (color == ColorType::White) ? 1 : -1;
 
-    if (board.checkSquareAvailability(x, y + dir)) {
-        availableSquaresToMove.push_back({{x, y + dir},moveType::Move}); //moveType is kinda irrelevant ngl
+    if (board.checkSquareAvailability(y + dir, x)) {
+        availablePreMoves.push_back({y + dir, x});
     }
 
-    if (!hasMoved && board.checkSquareAvailability(x, y + dir) && board.checkSquareAvailability(x, y + (dir * 2))) {
-        availableSquaresToMove.push_back({{x, y + (dir * 2)},moveType::Move});
+    if (!hasMoved && board.checkSquareAvailability(y + dir, x) && board.checkSquareAvailability(y + (dir * 2), x)) {
+        availablePreMoves.push_back({y + dir * 2, x});
     }
 
-    if (availableSquaresToMove.empty()){
+    if (availablePreMoves.empty()){
         std::cout << "no available squares for pawn to move/capture" << std::endl;
     }
-} 
+}
 
-//needs to be refactored, (shift to front end)
-void Pawn::checkCapture(Board& board){
-    int x = position.first;
-    int y = position.second;
+void Pawn::checkCapture(Board& board, std::vector<std::pair<int,int>>& availablePreMoves){
+    int x = position.second; // col
+    int y = position.first;  // row
     ColorType color = this->color;
+    std::cout << x << y << std::endl;
 
     int dir = (color == ColorType::White) ? 1 : -1;
-    int curSize = static_cast<int>(availableSquaresToMove.size());
+    int curSize = static_cast<int>(availablePreMoves.size());
 
-    if (board.isAvailableToCapture(color,x + 1, y + dir)){
-        availableSquaresToMove.push_back({{x + 1,y + dir},moveType::Capture});
-        std::cout << "piece is available for capture at coordinates " << x + 1 << ", " << y + dir<< std::endl;
+    if (board.isAvailableToCapture(color, y + dir, x + 1)){
+        availablePreMoves.push_back({y + dir, x + 1});
+        std::cout << "piece is available for capture at coordinates " << y + dir << ", " << x + 1 << std::endl;
     }
-    if (board.isAvailableToCapture(color,x - 1, y + dir)){
-        availableSquaresToMove.push_back({{x - 1,y + dir},moveType::Capture});
-        std::cout << "piece is available for capture at coordinates " << x - 1 << ", " << y + dir << std::endl;                                  
+    if (board.isAvailableToCapture(color, y + dir, x - 1)){
+        availablePreMoves.push_back({y + dir, x - 1});
+        std::cout << "piece is available for capture at coordinates " << y + dir << ", " << x - 1 << std::endl;
     }
-    if (curSize == availableSquaresToMove.size()){
+    if (curSize == static_cast<int>(availablePreMoves.size())){
         std::cout << "no available pieces to capture";
     }
 }
 
 
 void Pawn::addDangerTiles(Board& board){
-    int curX = position.first;
-    int curY = position.second;
+    int curX = position.second;
+    int curY = position.first;
 
     for (auto& dir : danger){
         int x = dir.first;
@@ -80,7 +86,6 @@ void Pawn::addDangerTiles(Board& board){
         }
     }
 }
-
 
 void Pawn::stateType(){
     std::cout << "I am a pawn ";

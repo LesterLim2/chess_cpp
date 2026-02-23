@@ -38,4 +38,6 @@ public:
     void setDangerTiles(std::vector<std::pair<int,int>> tiles);
     std::vector<std::pair<int,int>> getDangerTiles();
     void removeDangerTiles(DangerMap& dangerMap);
+    
+    virtual std::vector<std::pair<int,int>> checkPreMoves(Board& board);
 };

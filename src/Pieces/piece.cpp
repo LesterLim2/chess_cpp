@@ -4,6 +4,7 @@
 #include "piece.h"
 
 
+
 Piece::Piece(ColorType color, PieceType type, std::pair<int,int> position,std::vector<std::pair<int,int>> danger)
     : color(color), type(type), position(position), danger{danger} {}
 
@@ -67,4 +68,9 @@ std::pair<int,int> Piece::getPosition(){
 
 void Piece::setPosition(int x, int y){
     position = {x, y};
+}
+
+std::vector<std::pair<int,int>> Piece::checkPreMoves(Board& board){
+    std::cout << "im not doing anything yet!" << std::endl;
+    return {{-1,-1}}; // default value used for error handling
 }

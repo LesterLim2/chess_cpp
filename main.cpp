@@ -5,12 +5,14 @@
 #include "dangerMap.h"
 #include "pawn.h"
 #include "server.h"
+#include "game.h"
 
 int main() {
     Board b;
     b.generateBoard();
 
-    Server svr(8080);
-    svr.start();
-    return 0;
+    Game game(b);
+
+    Server server(8080,game);
+    server.start();
 }

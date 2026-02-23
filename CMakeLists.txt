@@ -12,6 +12,8 @@ add_executable(chess
     src/Pieces/piece.cpp
     src/Pieces/pawn.cpp
     src/Pieces/bishop.cpp
+    src/game.cpp
+    src/player.cpp
 )
 
 target_include_directories(chess PRIVATE includes)

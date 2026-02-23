@@ -5,13 +5,16 @@
 
 #include "piece.h"
 
-class Board;
+
+
+class Game;
 class Server{
     private:
         httplib::Server svr;
         int port;
+        Game& game;
     public:
-        Server(int port);
+        Server(int port,Game& game);
         void setUpRoutes();
         void start();
 

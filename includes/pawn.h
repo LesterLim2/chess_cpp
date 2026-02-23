@@ -14,12 +14,13 @@ private:
 public:
     Pawn(ColorType color, std::pair<int,int> positon);
     void stateType() override;
-    void checkMovement(Board& board);
-
-    void checkCapture(Board& board);
+    void checkCapture(Board& board,std::vector<std::pair<int,int>>& availablePreMoves);
 
     void promotion();
 
     void addDangerTiles(Board& board) override;
+    void checkMovement(Board& board,std::vector<std::pair<int,int>>& availablePreMoves);
 
+    std::vector<std::pair<int,int>> checkPreMoves(Board& board) override;
+    
 };
