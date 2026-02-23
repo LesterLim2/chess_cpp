@@ -12,8 +12,7 @@ std::string Game::preMove(int row, int col, ColorType color, PieceType type){
 
     if (piece == nullptr && color != ColorType::None && type !=PieceType::None) return "Error: Piece mismatch";
 
-    std::vector<std::pair<int,int>> availablePreMoves = {};
-
+    std::string availablePreMoves = "None";
     if(piece != nullptr){
         if(!isValidatedPiece(piece,row,col,color,type)){
             return "Error: piece mismatch";
@@ -22,7 +21,7 @@ std::string Game::preMove(int row, int col, ColorType color, PieceType type){
             availablePreMoves = piece->checkPreMoves(board);
         }
     }
-    return vectorToString(availablePreMoves);
+    return availablePreMoves;
 };
 
 bool Game::isValidatedPiece(Piece* piece, int row, int col, ColorType color, PieceType type){

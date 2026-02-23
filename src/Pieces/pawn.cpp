@@ -13,11 +13,16 @@ Pawn::Pawn(ColorType c, std::pair<int,int> p)
            ) {}
 
 
-std::vector<std::pair<int,int>> Pawn::checkPreMoves(Board& board){
-    std::vector<std::pair<int,int>> availablePreMoves = {};
-    checkMovement(board,availablePreMoves);
-    checkCapture(board,availablePreMoves);
-    return availablePreMoves;
+std::string Pawn::checkPreMoves(Board& board){
+    std::vector<std::pair<int,int>> availableMoves = {};
+    checkMovement(board,availableMoves);
+    std::string availablePreMoves = vectorToString(availableMoves) + "c";
+    
+
+    std::vector<std::pair<int,int>> availableCaptures = {};
+    checkCapture(board,availableCaptures);
+    availablePreMoves += vectorToString(availableCaptures);
+    return availablePreMoves != "c" ? availablePreMoves : "None";
 }
 
 void Pawn::checkMovement(Board& board, std::vector<std::pair<int,int>>& availablePreMoves){

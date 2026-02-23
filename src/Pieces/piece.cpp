@@ -70,7 +70,18 @@ void Piece::setPosition(int x, int y){
     position = {x, y};
 }
 
-std::vector<std::pair<int,int>> Piece::checkPreMoves(Board& board){
+std::string Piece::checkPreMoves(Board& board){
     std::cout << "im not doing anything yet!" << std::endl;
-    return {{-1,-1}}; // default value used for error handling
+    return "{{-1,-1}}"; // default value used for error handling
+}
+
+std::string Piece::vectorToString(std::vector<std::pair<int,int>> vector){
+    std::string convertedString = "";
+    for (auto& element: vector){
+        int x = element.first;
+        int y = element.second;
+        convertedString +=  std::to_string(x) + std::to_string(y) + "&";
+    }
+    return convertedString;
+
 }

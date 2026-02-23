@@ -21,6 +21,6 @@ public:
     void addDangerTiles(Board& board) override;
     void checkMovement(Board& board,std::vector<std::pair<int,int>>& availablePreMoves);
 
-    std::vector<std::pair<int,int>> checkPreMoves(Board& board) override;
+    std::string checkPreMoves(Board& board) override;
     
 };

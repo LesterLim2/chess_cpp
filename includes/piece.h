@@ -39,5 +39,7 @@ public:
     std::vector<std::pair<int,int>> getDangerTiles();
     void removeDangerTiles(DangerMap& dangerMap);
     
-    virtual std::vector<std::pair<int,int>> checkPreMoves(Board& board);
+    virtual std::string checkPreMoves(Board& board);
+
+    std::string vectorToString(std::vector<std::pair<int,int>> vector);
 };
