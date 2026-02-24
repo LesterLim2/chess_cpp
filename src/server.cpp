@@ -10,7 +10,7 @@ Server::Server(int p, Game& g) : port(p),game(g) {
 };
 
 void Server::setUpRoutes(){
-    svr.Get("/tile-clicked", [this](const httplib::Request& req, httplib::Response& res) {
+    svr.Get("/tile-clicked", [&](const httplib::Request& req, httplib::Response& res) {
         int row = std::stoi(req.get_param_value("row"));
         int col = std::stoi(req.get_param_value("col"));
         PieceType type = stringToPieceType[req.get_param_value("pieceType")];
@@ -23,8 +23,14 @@ void Server::setUpRoutes(){
         std::string preMoveString = game.preMove(row,col,color,type);
         res.set_content(preMoveString,"text/plain");
     });
-}
 
+    svr.Get("/move-piece", [&](const httplib::Request& req, httplib::Response& res) {
+        std::string pieceString = req.get_param_value("pieces");
+
+        std::string moveString = game.movePiece(pieceString);
+        res.set_content(moveString,"text/plain");
+    });
+}
 void Server::start(){
     std::cout << "Server listening on http://localhost:" << port << std::endl;
     bool success = svr.listen("0.0.0.0", port);

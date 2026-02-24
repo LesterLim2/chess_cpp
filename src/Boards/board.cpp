@@ -5,6 +5,8 @@
 #include "board.h"
 #include "pawn.h"
 #include "bishop.h"
+#include "rook.h"
+#include "queen.h"
 #include "types.h"
 
 
@@ -50,6 +52,9 @@ bool Board::isAvailableToCapture(ColorType color, int x, int y) {
     }
     Piece* capturee = board[x][y].get();
     if (capturee->getColor() == color) {
+        return false;
+    }
+    if(capturee->getType() == PieceType::King){
         return false;
     }
     return true;
@@ -109,8 +114,10 @@ void Board::backRowPlace(int row, int col){
     std::pair<int,int> pos = std::make_pair(row, col);
 
     switch(col){
-        case 0: // place Rook at pos with color
+        case 0: 
+            placePiece(std::make_unique<Rook>(color, std::make_pair(row,col)));
         case 7: // place Rook at pos with color
+            placePiece(std::make_unique<Rook>(color, std::make_pair(row,col)));
             break;
         case 1: // place Knight at pos with color
         case 6: // place Knight at pos with color
@@ -121,7 +128,8 @@ void Board::backRowPlace(int row, int col){
         case 5: // place Bishop at pos with color
             placePiece(std::make_unique<Bishop>(color, std::make_pair(row,col)));
             break;
-        case 3: // place Queen at pos with color
+        case 3:
+            placePiece(std::make_unique<Queen>(color,std::make_pair(row,col)));
             break;
         case 4: // place King at pos with color
             break;

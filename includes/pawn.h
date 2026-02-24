@@ -5,22 +5,26 @@
 #include <vector>
 
 class Board;
+class DangerMap;
 
 class Pawn : public Piece{
 private:
     bool hasMoved = false;
+    std::vector<std::pair<int,int>> direction;
     std::vector<std::pair<std::pair<int,int>,moveType>> availableSquaresToMove = {};
+
+    void determineDirection();
+    void determineDanger();
 
 public:
     Pawn(ColorType color, std::pair<int,int> positon);
     void stateType() override;
-    void checkCapture(Board& board,std::vector<std::pair<int,int>>& availablePreMoves);
+    std::vector<std::pair<int,int>> checkCapture(Board& board) override;
 
-    void promotion();
+    void promotion(Board& board);
 
-    void addDangerTiles(Board& board) override;
-    void checkMovement(Board& board,std::vector<std::pair<int,int>>& availablePreMoves);
+    void addDangerTiles(Board& board,DangerMap& dangerMap) override;
+    std::vector<std::pair<int,int>> checkMovement(Board& board) override;
 
-    std::string checkPreMoves(Board& board) override;
     
 };

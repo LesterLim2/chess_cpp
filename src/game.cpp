@@ -24,6 +24,12 @@ std::string Game::preMove(int row, int col, ColorType color, PieceType type){
     return availablePreMoves;
 };
 
+std::string Game::movePiece(std::string pieceString){
+    std::cout << pieceString << std::endl;
+        return "";
+}
+
+
 bool Game::isValidatedPiece(Piece* piece, int row, int col, ColorType color, PieceType type){
     std::pair<int,int> piecePosition = piece->getPosition();
     int pieceRow = piecePosition.first;

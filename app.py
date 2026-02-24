@@ -20,5 +20,10 @@ def tile_clicked():
     response = session.get(f'{CPP_BASE}/tile-clicked', params=tile_parameters)
     return response.text
 
+@app.route('/move-piece',methods = ['GET'])
+def move_piece():
+        print(request.args.get('pieces'))
+        response = session.get(f'{CPP_BASE}/move-piece?pieces={request.args.get('pieces')}')
+        return response.text
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

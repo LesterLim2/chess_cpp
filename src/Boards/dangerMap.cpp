@@ -3,21 +3,18 @@
 
 #include "dangerMap.h"
 #include "piece.h"
+#include "board.h"
 
 
 DangerMap::DangerMap()
     : dangerMap(8, std::vector<dangerType>(8)) {}
 
 
-void DangerMap::insertDanger(Piece* piece) {
-    std::vector<std::pair<int,int>> dangerTiles = piece->getDangerTiles();
-
-    for (auto& tile : dangerTiles){
-        int x = tile.first;
-        int y = tile.second;
-
-        dangerMap[x][y].push_back(piece->getColor());
-    }
+std::vector<std::vector<std::vector<ColorType>>>& DangerMap::getDangerMap(){
+    return dangerMap;
+}
+void DangerMap::insertDanger(int x, int y, ColorType color){
+    dangerMap[x][y].push_back(color);
 }
 
 
@@ -32,7 +29,17 @@ void DangerMap::removeDanger(int x, int y, ColorType color){
             break;
         }
     }
+}
 
+//when game starts
+void DangerMap::initaliseDanger(Board& board){
+    for(int y = 0; y < 8 ; y++){
+        for(int x = 0 ; x < 8 ; x++){
+            Piece* piece = board.getPiece(x,y);
+            if (piece == nullptr) continue;
+            piece->addDangerTiles(board,*this);
+        }
+    }
 }
 
 void DangerMap::stateDangerMap(){

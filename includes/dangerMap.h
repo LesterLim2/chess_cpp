@@ -14,7 +14,8 @@ private:
 public:
 
     DangerMap();
-    void insertDanger(Piece* piece);
+    std::vector<std::vector<std::vector<ColorType>>>& getDangerMap();
+    void insertDanger(int x, int y, ColorType color);
 
     void removeDanger(int x, int y, ColorType color);
     
@@ -25,4 +26,5 @@ public:
     bool hasDangerColor(int x, int y, ColorType c) const;
     int getThreatCount(int x, int y, ColorType c) const;
     int getTotalThreats(int x, int y) const;
+    void initaliseDanger(Board& board);
 };

@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded',function(){
             switch(i){
                 case 0:
                     placePiece(tile, "White", backRowsArray[j], i, j);
+                    let label = document.createElement("span");
+                    label.textContent = String.fromCharCode(65 + j);
+                    label.classList.add("lower");
+                    tile.appendChild(label);
                     break;
                 case 1:
                     placePiece(tile, "White", "Pawn", i, j);
@@ -29,87 +33,131 @@ document.addEventListener('DOMContentLoaded',function(){
                     placePiece(tile, "Black", backRowsArray[j], i, j);
                     break;
             }
+            if (j ==0){
+                let label = document.createElement("span");
+                label.textContent = i + 1;
+                label.classList.add("leftmost");
+                tile.appendChild(label);
+            }
             tile.addEventListener('click',function(){
                 onTileClicked(this.dataset.row,this.dataset.col);
             });
             board.append(tile);
         }
     }
+    console.log("board initalised!");
 })
 
-const selectedPieces = [];
+const selectedPiece = []; // can be used when pieces move
+const availablePreMoves = [];
 async function onTileClicked(row,col){
     let piece = pieceArray[row][col];
-    checkSelected(row,col,piece);
+    //handles both highlighting and clearing selected tile. dosent require backend verification
 
+    //sends selected tile(in string form into back end. response will be in string form with format xy& where x y are coordinates and & is to denote a seperate tile.
+    // both movement and capture logic is within the response, they are sperated by a 'c'which will denote a change in logic (and css required))
     let url = `/tile-clicked?row=${row}&col=${col}`
         + `&pieceType=${piece ? piece.type : "None"}&colorType=${piece ? piece.color : "None"}`;
     const response = await fetch(url);
     const text = await response.text();
+
     console.log(text);
     if(text != "None"){
-        generatePreMoves(text,row,col);
-    }
-    if(text == "None" && availablePreMoves != 0 ){
-        clearPreMoves();
-    }
-}
-
-function checkSelected(row,col,piece){
-    let tile = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-    if(selectedPieces.length == 0){
-        if(piece!= null){
-            console.log(selectedPieces);
-            selectedPieces.push([row,col]);
-            tile.classList.add("selected");
-        }
-    }
-    else{
-        let [x,y] = selectedPieces[0];
-        if ((x == row) && (y == col)){
-            //on double click remove highlight on piece
-            selectedPieces.pop();
-            tile.classList.remove("selected");
+        if(selectedPiece.length == 0){
+            checkSelected(row,col,piece);
+            generatePreMoves(text);
         }
         else{
-            selectedPieces.pop();
-            let originalTile = document.querySelector(`[data-row="${x}"][data-col="${y}"]`);
-            originalTile.classList.remove("selected");
-            
-            //if the user clicks on an empty tile when a
-            if(pieceArray[row][col] != null){
-                selectedPieces.push([row,col]);
-                tile.classList.add("selected");
+            if (selectedPiece[0][0] == row && selectedPiece[0][1] == col){
+                clearPreMoves();
+            }
+            else if (availablePreMoves.some(([r,c]) => r == row && c == col)){
+                movePiece(row,col);
+                clearPreMoves();
+            }
+            else{
+                clearPreMoves();
+                checkSelected(row, col, piece);
+                generatePreMoves(text);
             }
         }
-        console.log(selectedPieces);
     }
-    
-}
-function generateImageText(piece){
-    let imageString = "static/images/vintage/"
-    imageString += piece.color =="White" ? "w" : "b";
-    imageString += typeToText[piece.type];
-    imageString += ".png";
-    return imageString;
+    if(text == "None"){
+        if(pieceArray[row][col] != null){
+            checkSelected(row,col,pieceArray[row][col]);
+        }
+        if(selectedPiece.length != 0 && availablePreMoves.some(([r,c]) => r == row && c == col)){
+            movePiece(row,col);
+            clearPreMoves();
+        }
+        else{
+            clearPreMoves();
+        }
+    }
 }
 
-const availablePreMoves = [];
-function generatePreMoves(text){
-    let preMoveTile = '';
-    if (availablePreMoves.length != 0){
-        clearPreMoves();
+async function movePiece(row,col){
+    let url = `/move-piece?pieces=`;
+    url += createMovePieceString(row,col);
+    console.log(url);
+    const response = await fetch(url);
+    let text = await response.text();
+}
+
+function createMovePieceString(newRow,newCol){
+    //generate original piece string
+    let [originalRow,originalCol] = selectedPiece[0];
+    let pieceString = "";
+    let originalPiece = pieceArray[originalRow][originalCol];
+    if (originalPiece == null) {
+        console.warn("error moving a piece that dosent exist")
+        return;
     }
+    pieceString += `${originalRow}${originalCol}${typeToText[originalPiece.type]}${colorToText[originalPiece.color]}`
+
+    let newPiece = pieceArray[newRow][newCol];
+    let isNewPiece = newPiece != null;
+
+    pieceString += `${newRow}${newCol}${isNewPiece ? typeToText[newPiece.type] : 'o'}${isNewPiece ? colorToText[newPiece.color] : 'o'}`;
+    
+    return pieceString
+}
+//ts scuffed as fuck, if it works it works type shit o(n) time though
+function generatePreMoves(text){
+    //text comes in the form of xy&xy&cxy&xy&... where xy == coords & = seperation between tiles and c = set flag from preMoves to preCaptures
+    let preMoveTile = '';
+    let isGeneratingPreMove = true;
     for(let s = 0; s < text.length ; s++){
+        if (text[s] == "c"){
+            isGeneratingPreMove = false;
+            continue;
+        }
         if (text[s] == '&'){
             let row = parseInt(preMoveTile[0]);
             let col = parseInt(preMoveTile[1]);
             let tile = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-            if(pieceArray[row][col] == null){
-                tile.classList.add('preMove');
+            if (isGeneratingPreMove){
+                if(pieceArray[row][col] == null){
+                    let preMoveSpan = document.createElement('span')
+                    preMoveSpan.classList.add('preMove');
+                    tile.append(preMoveSpan);
+                }
+                else{
+                    throw "invalid pre move";
+                }               
             }
-            else{
-                tile.classList.add('preCapture')
+            if(!isGeneratingPreMove){
+                if(pieceArray[row][col] != null){
+                    let preCaptureSpan = document.createElement('span');
+                    preCaptureSpan.classList.add('preCapture');
+                    tile.append(preCaptureSpan)
+                }
+                if(pieceArray[row][col] == null && !tile.getElementsByClassName('preMove')){
+                    continue;
+                }
+                else{
+                    throw "invalid pre capture";
+                }
             }
             availablePreMoves.push([parseInt(preMoveTile[0]),parseInt(preMoveTile[1])]);
             preMoveTile = '';
@@ -120,25 +168,52 @@ function generatePreMoves(text){
     }
 }
 
+function checkSelected(row,col,piece){
+    let tile = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    if(piece != null){
+        selectedPiece.push([row,col]);
+        tile.classList.add("selected");
+    }
+}
+
+function clearSelected(){
+    if(selectedPiece.length == 0) return;
+    let [row,col] = selectedPiece[0];
+    let tile = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    tile.classList.remove('selected');
+    selectedPiece.length = 0;
+}
+
+function generateImageText(piece){
+    let imageString = "static/images/vintage/"
+    imageString += piece.color =="White" ? "w" : "b";
+    imageString += typeToText[piece.type];
+    imageString += ".png";
+    return imageString;
+}
+
+
+
+
 function clearPreMoves(){
-    for(let i = 0 ; i < availablePreMoves.length ; i++){
-        let [row,col] =  availablePreMoves[i];
+    clearSelected();
+    if(availablePreMoves.length == 0) return;
+    for(let i = 0; i < availablePreMoves.length ; i++){
+        let [row,col] = availablePreMoves[i];
         if (row == -1 && col == -1){
             console.log("Piece does not exist");
             continue;
         }
         let tile = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-        if(pieceArray[row][col] == null){
-            tile.classList.remove('preMove');
-
-        }
-        else {
-            tile.classList.remove('preCapture');
-        }
+        tile.querySelectorAll('.preMove, .preCapture').forEach(t => t.remove());
     }
     availablePreMoves.length = 0;
 }
 
+const colorToText = {
+    'White' : 'w',
+    'Black' : 'b'
+}
 const typeToText = {
     'Pawn' : 'p',
     'Knight' : 'n',

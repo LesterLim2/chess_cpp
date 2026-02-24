@@ -18,4 +18,7 @@ class Game{
         std::string preMove(int row, int col, ColorType color, PieceType type);
         bool isValidatedPiece(Piece* piece, int row, int col, ColorType color, PieceType type);
         std::string vectorToString(std::vector<std::pair<int,int>> vector);
+        
+        std::string movePiece(std::string pieceString);
+        std::string pieceStringToPieces(std::string pieceString);
 };

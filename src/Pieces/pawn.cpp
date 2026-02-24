@@ -6,92 +6,89 @@
 #include <vector>
 
 Pawn::Pawn(ColorType c, std::pair<int,int> p)
-    : Piece(c, PieceType::Pawn, p, 
-            c == ColorType::White ? 
-                std::vector<std::pair<int,int>>{{1,1},{-1,1}} :   
-                std::vector<std::pair<int,int>>{{1,-1},{-1,-1}}   
-           ) {}
-
-
-std::string Pawn::checkPreMoves(Board& board){
-    std::vector<std::pair<int,int>> availableMoves = {};
-    checkMovement(board,availableMoves);
-    std::string availablePreMoves = vectorToString(availableMoves) + "c";
-    
-
-    std::vector<std::pair<int,int>> availableCaptures = {};
-    checkCapture(board,availableCaptures);
-    availablePreMoves += vectorToString(availableCaptures);
-    return availablePreMoves != "c" ? availablePreMoves : "None";
+    : Piece(c, PieceType::Pawn, p) {
+    determineDirection();
+    determineDanger();
 }
 
-void Pawn::checkMovement(Board& board, std::vector<std::pair<int,int>>& availablePreMoves){
+void Pawn::determineDirection(){
+    this->direction = color == ColorType::White ?
+        std::vector<std::pair<int,int>>{{0,1}} :
+        std::vector<std::pair<int,int>>{{0,-1}};
+}
+
+void Pawn::determineDanger(){
+    this->danger = color == ColorType::White ?
+        std::vector<std::pair<int,int>>{{1,1},{-1,1}} :
+        std::vector<std::pair<int,int>>{{1,-1},{-1,-1}};
+}
+
+std::vector<std::pair<int,int>> Pawn::checkMovement(Board& board){
     int x = position.second; // col
     int y = position.first;  // row
-    ColorType color = this->color;
-
     int dir = (color == ColorType::White) ? 1 : -1;
+    std::vector<std::pair<int,int>> availableMoves = {};
 
     if (board.checkSquareAvailability(y + dir, x)) {
-        availablePreMoves.push_back({y + dir, x});
+        availableMoves.push_back({y + dir, x});
     }
-
     if (!hasMoved && board.checkSquareAvailability(y + dir, x) && board.checkSquareAvailability(y + (dir * 2), x)) {
-        availablePreMoves.push_back({y + dir * 2, x});
+        availableMoves.push_back({y + dir * 2, x});
     }
-
-    if (availablePreMoves.empty()){
-        std::cout << "no available squares for pawn to move/capture" << std::endl;
+    if (availableMoves.empty()){
+        std::cout << "no available squares for pawn to move" << std::endl;
     }
+    return availableMoves;
 }
 
-void Pawn::checkCapture(Board& board, std::vector<std::pair<int,int>>& availablePreMoves){
+std::vector<std::pair<int,int>> Pawn::checkCapture(Board& board){
     int x = position.second; // col
     int y = position.first;  // row
-    ColorType color = this->color;
-    std::cout << x << y << std::endl;
-
     int dir = (color == ColorType::White) ? 1 : -1;
-    int curSize = static_cast<int>(availablePreMoves.size());
+    std::vector<std::pair<int,int>> availableCaptures = {};
 
     if (board.isAvailableToCapture(color, y + dir, x + 1)){
-        availablePreMoves.push_back({y + dir, x + 1});
-        std::cout << "piece is available for capture at coordinates " << y + dir << ", " << x + 1 << std::endl;
+        availableCaptures.push_back({y + dir, x + 1});
+        std::cout << "piece available for capture at " << y + dir << ", " << x + 1 << std::endl;
     }
     if (board.isAvailableToCapture(color, y + dir, x - 1)){
-        availablePreMoves.push_back({y + dir, x - 1});
-        std::cout << "piece is available for capture at coordinates " << y + dir << ", " << x - 1 << std::endl;
+        availableCaptures.push_back({y + dir, x - 1});
+        std::cout << "piece available for capture at " << y + dir << ", " << x - 1 << std::endl;
     }
-    if (curSize == static_cast<int>(availablePreMoves.size())){
-        std::cout << "no available pieces to capture";
+    if (availableCaptures.empty()){
+        std::cout << "no available pieces to capture" << std::endl;
     }
+    return availableCaptures;
 }
 
 
-void Pawn::addDangerTiles(Board& board){
+void Pawn::addDangerTiles(Board& board,DangerMap& dangerMap){
     int curX = position.second;
     int curY = position.first;
 
     for (auto& dir : danger){
         int x = dir.first;
         int y = dir.second;
-        if (board.isInBounds(curX + x,curY + y)){
-            Piece* piece = board.getPiece(curX + x,curY + y);
-            if (piece == nullptr){
-                dangerTiles.push_back({curX + x, curY + y});
-            }
-            else{
-                if (piece->getColor() != color){
-                    if (piece->getType() == PieceType::King){
-                        //checkmate logic
-                    }
-                    dangerTiles.push_back({curX + x,curY + y});
+        if (!board.isInBounds(curX + x,curY + y)) continue;
+        Piece* piece = board.getPiece(curX + x,curY + y);
+        if (piece == nullptr){
+            dangerMap.insertDanger(curX + x, curY + y, color);
+        }
+        else{
+            if (piece->getColor() != color){
+                if (piece->getType() == PieceType::King){
+                    //checkmate logic toDO
                 }
+                dangerMap.insertDanger(curX + x, curY + y, color);
             }
         }
     }
 }
 
+//called when pawn moves to end of the board
+void Pawn::promotion(Board& board){
+
+}
 void Pawn::stateType(){
     std::cout << "I am a pawn ";
 }

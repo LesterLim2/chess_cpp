@@ -4,17 +4,8 @@ project(chess VERSION 0.1.0 LANGUAGES C CXX)
 include(CTest)
 enable_testing()
 
-add_executable(chess
-    main.cpp
-    src/server.cpp
-    src/Boards/board.cpp
-    src/Boards/dangerMap.cpp
-    src/Pieces/piece.cpp
-    src/Pieces/pawn.cpp
-    src/Pieces/bishop.cpp
-    src/game.cpp
-    src/player.cpp
-)
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+add_executable(chess main.cpp ${SOURCES})
 
 target_include_directories(chess PRIVATE includes)
 set_target_properties(chess PROPERTIES
