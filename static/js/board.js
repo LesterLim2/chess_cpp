@@ -57,7 +57,7 @@ async function onTileClicked(row,col){
 
     //sends selected tile(in string form into back end. response will be in string form with format xy& where x y are coordinates and & is to denote a seperate tile.
     // both movement and capture logic is within the response, they are sperated by a 'c'which will denote a change in logic (and css required))
-    let url = `/tile-clicked?row=${row}&col=${col}`
+    let url = `http://localhost:8080/tile-clicked?row=${row}&col=${col}`
         + `&pieceType=${piece ? piece.type : "None"}&colorType=${piece ? piece.color : "None"}`;
     const response = await fetch(url);
     const text = await response.text();
@@ -98,7 +98,7 @@ async function onTileClicked(row,col){
 }
 
 async function movePiece(row,col){
-    let url = `/move-piece?pieces=`;
+    let url = `http://localhost:8080/move-piece?pieces=`;
     console.log(pieceArray);
     let [originalRow,originalCol] = selectedPiece[0];
     url += createMovePieceString(originalRow,originalCol,row,col);

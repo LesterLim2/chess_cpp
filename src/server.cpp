@@ -11,6 +11,7 @@ Server::Server(int p, Game& g) : port(p),game(g) {
 
 void Server::setUpRoutes(){
     svr.Get("/tile-clicked", [&](const httplib::Request& req, httplib::Response& res) {
+        res.set_header("Access-Control-Allow-Origin","*");
         int row = std::stoi(req.get_param_value("row"));
         int col = std::stoi(req.get_param_value("col"));
         PieceType type = stringToPieceType[req.get_param_value("pieceType")];
@@ -25,6 +26,7 @@ void Server::setUpRoutes(){
     });
 
     svr.Get("/move-piece", [&](const httplib::Request& req, httplib::Response& res) {
+        res.set_header("Access-Control-Allow-Origin","*");
         std::string pieceString = req.get_param_value("pieces");
         res.set_content(game.movePiece(pieceString) ? "validated" : "Error","text/plain");
     });
