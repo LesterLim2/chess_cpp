@@ -9,9 +9,9 @@
 
 int main() {
     Board b;
-    b.generateBoard();
+    DangerMap d;
 
-    Game game(b);
+    Game game(b,d);
 
     Server server(8080,game);
     server.start();

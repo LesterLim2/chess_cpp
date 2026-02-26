@@ -6,25 +6,25 @@
 class Board;
 class Piece;
 enum class ColorType;
+enum class PieceType;
 
 class DangerMap{
 private:
-    using dangerType = std::vector<ColorType>;
-    std::vector<std::vector<dangerType>> dangerMap;
+    std::vector<std::vector<int>> dangerMapWhite;
+    std::vector<std::vector<int>> dangerMapBlack;
+    ColorType color;
+    std::vector<int> initialDanger = {2,2,3,2,2,3,2,2};
 public:
 
     DangerMap();
-    std::vector<std::vector<std::vector<ColorType>>>& getDangerMap();
-    void insertDanger(int x, int y, ColorType color);
+    std::vector<std::vector<int>> getDangerMap(ColorType color);
+    void insertDanger(int x, int y,ColorType color);
 
-    void removeDanger(int x, int y, ColorType color);
+    void removeDanger(std::string availableMoves, ColorType color, PieceType type);
+    void addDanger(std::string availableMoves, ColorType color, PieceType type);
     
     void updateDanger(Piece* piece,int newX,int newY);
 
-    void stateDangerMap();
-
-    bool hasDangerColor(int x, int y, ColorType c) const;
-    int getThreatCount(int x, int y, ColorType c) const;
-    int getTotalThreats(int x, int y) const;
-    void initaliseDanger(Board& board);
+    void stateDangerMap(ColorType color);
+    void initaliseDanger();
 };

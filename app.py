@@ -1,5 +1,6 @@
 from flask import Flask, render_template ,request
 import requests
+#THIS ENTIRE THING NEEDS TO BE GONE
 
 app = Flask(__name__)
 CPP_BASE = 'http://127.0.0.1:8080'

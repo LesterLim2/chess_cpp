@@ -13,7 +13,7 @@ protected:
     std::pair<int,int> position;
     std::vector<std::pair<int,int>> danger;
     std::vector<std::pair<int,int>> directions;
-    std::vector<std::pair<int,int>> dangerTiles = {};
+    bool hasMoved = false;
 
 public:
     Piece(ColorType color = ColorType::None,
@@ -33,15 +33,12 @@ public:
     ColorType Piece::getColor();
 
     virtual std::vector<std::pair<int,int>> getDanger();
-
-    virtual void addDangerTiles(Board& board,DangerMap& dangerMap);
-    void setDangerTiles(std::vector<std::pair<int,int>> tiles);
     std::vector<std::pair<int,int>> getDangerTiles();
-    void removeDangerTiles(DangerMap& dangerMap);
     
     virtual std::string checkPreMoves(Board& board);
-    virtual std::vector<std::pair<int,int>> checkMovement(Board& board);
-    virtual std::vector<std::pair<int,int>> checkCapture(Board& board);
+    virtual std::string checkMovement(Board& board);
+    std::string checkThreats(Board& board);
 
-    std::string vectorToString(std::vector<std::pair<int,int>> vector);
+    bool getHasMoved();
+    void setHasMoved(bool hasMoved);
 };

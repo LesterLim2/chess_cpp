@@ -14,6 +14,7 @@ Board::Board() {
     for (int i = 0; i < 8; i++) {
         board.push_back(std::vector<std::unique_ptr<Piece>>(8));
     }
+    generateBoard();
 }
 
 
@@ -24,17 +25,13 @@ Piece* Board::getPiece(int x, int y) {
 
 
 void Board::movePiece(int originalX, int originalY, int newX, int newY) {
-    if (!isInBounds(originalX, originalY) || !isInBounds(newX, newY)) {
-        throw std::runtime_error("out of bounds");
+    Piece* piece = getPiece(originalX,originalY);
+    if (!piece->getHasMoved()){
+        piece->setHasMoved(true);
     }
-    Piece* original = getPiece(originalX,originalY);
-    if (original == nullptr) {
-        throw std::runtime_error("original piece not found");
-    }
-
     board[newX][newY] = std::move(board[originalX][originalY]);
-    board[originalX][originalY].reset();
     board[newX][newY]->setPosition(newX, newY);
+    stateBoard();
 }
 
 
@@ -60,7 +57,7 @@ bool Board::isAvailableToCapture(ColorType color, int x, int y) {
     return true;
 }
 
-
+//used on game start only
 void Board::placePiece(std::unique_ptr<Piece> piece) {
     std::pair<int, int> position = piece->getPosition();
     int x = position.first;
@@ -87,25 +84,20 @@ void Board::generateBoard(){
             switch(i){
                 case(0):
                     backRowPlace(i,j);
-                    std::cout<< "Row " << i << "generated" << std::endl;
                     break;
                 case(1):
                     placePiece(std::make_unique<Pawn>(ColorType::White, std::pair<int,int> {i,j}));
-                    std::cout<< "Row " << i << "generated" << std::endl;
                     break;
                 case(6):
                     placePiece(std::make_unique<Pawn>(ColorType::Black, std::pair<int,int> {i,j}));
-                    std::cout<< "Row " << i << "generated" << std::endl;
                     break;
                 case(7):
                     backRowPlace(i,j);
-                    std::cout<< "Row " << i << "generated" << std::endl;
                     break;
-                default:
-                    std::cout << "Row " << i << "passed" << std::endl;
-            }
+            };
         }
     }
+    std::cout << "board generated" << std::endl;
     stateBoard();
 }
 
@@ -116,16 +108,17 @@ void Board::backRowPlace(int row, int col){
     switch(col){
         case 0: 
             placePiece(std::make_unique<Rook>(color, std::make_pair(row,col)));
-        case 7: // place Rook at pos with color
+            break;
+        case 7: 
             placePiece(std::make_unique<Rook>(color, std::make_pair(row,col)));
             break;
         case 1: // place Knight at pos with color
         case 6: // place Knight at pos with color
             break;
-        case 2: // place Bishop at pos with color
+        case 2: 
             placePiece(std::make_unique<Bishop>(color, std::make_pair(row,col)));
             break;
-        case 5: // place Bishop at pos with color
+        case 5: 
             placePiece(std::make_unique<Bishop>(color, std::make_pair(row,col)));
             break;
         case 3:

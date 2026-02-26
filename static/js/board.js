@@ -52,6 +52,7 @@ const selectedPiece = []; // can be used when pieces move
 const availablePreMoves = [];
 async function onTileClicked(row,col){
     let piece = pieceArray[row][col];
+    console.log(pieceArray);
     //handles both highlighting and clearing selected tile. dosent require backend verification
 
     //sends selected tile(in string form into back end. response will be in string form with format xy& where x y are coordinates and & is to denote a seperate tile.
@@ -98,15 +99,30 @@ async function onTileClicked(row,col){
 
 async function movePiece(row,col){
     let url = `/move-piece?pieces=`;
-    url += createMovePieceString(row,col);
+    console.log(pieceArray);
+    let [originalRow,originalCol] = selectedPiece[0];
+    url += createMovePieceString(originalRow,originalCol,row,col);
     console.log(url);
     const response = await fetch(url);
     let text = await response.text();
+
+    if(text != "validated"){
+        console.warn("backend Error");
+        return;
+    }
+
+    let originalTile = document.querySelector(`[data-row="${originalRow}"][data-col="${originalCol}"]`);
+    let newTile = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    let capturedImg = newTile.querySelector('img');
+    if(capturedImg) capturedImg.remove();
+    newTile.appendChild(originalTile.querySelector('img'));
+
+    pieceArray[row][col] = pieceArray[originalRow][originalCol];
+    pieceArray[row][col].position = [row, col];
+    pieceArray[originalRow][originalCol] = null;
 }
 
-function createMovePieceString(newRow,newCol){
-    //generate original piece string
-    let [originalRow,originalCol] = selectedPiece[0];
+function createMovePieceString(originalRow,originalCol,newRow,newCol){
     let pieceString = "";
     let originalPiece = pieceArray[originalRow][originalCol];
     if (originalPiece == null) {
@@ -137,26 +153,19 @@ function generatePreMoves(text){
             let col = parseInt(preMoveTile[1]);
             let tile = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             if (isGeneratingPreMove){
-                if(pieceArray[row][col] == null){
-                    let preMoveSpan = document.createElement('span')
-                    preMoveSpan.classList.add('preMove');
-                    tile.append(preMoveSpan);
-                }
-                else{
-                    throw "invalid pre move";
-                }               
+                let preMoveSpan = document.createElement('span')
+                preMoveSpan.classList.add('preMove');
+                tile.append(preMoveSpan);
             }
             if(!isGeneratingPreMove){
                 if(pieceArray[row][col] != null){
                     let preCaptureSpan = document.createElement('span');
                     preCaptureSpan.classList.add('preCapture');
-                    tile.append(preCaptureSpan)
-                }
-                if(pieceArray[row][col] == null && !tile.getElementsByClassName('preMove')){
-                    continue;
+                    tile.append(preCaptureSpan);
                 }
                 else{
-                    throw "invalid pre capture";
+                    preMoveTile = '';
+                    continue;
                 }
             }
             availablePreMoves.push([parseInt(preMoveTile[0]),parseInt(preMoveTile[1])]);
@@ -191,9 +200,6 @@ function generateImageText(piece){
     imageString += ".png";
     return imageString;
 }
-
-
-
 
 function clearPreMoves(){
     clearSelected();

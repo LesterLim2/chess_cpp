@@ -5,6 +5,7 @@
 
 
 class Board;
+class DangerMap;
 class Piece;
 
 //handles game types(singleplayer (probably not going to be implemented))
@@ -12,13 +13,14 @@ class Piece;
 class Game{
     private:
         Board& board;
+        DangerMap& dangerMap;
     public:
-        Game(Board& board);
-        void checkAvailableMoves(Board& board);
+        Game(Board& board,DangerMap& dangerMap);
         std::string preMove(int row, int col, ColorType color, PieceType type);
+        std::string getMovementString(int row,int col);
         bool isValidatedPiece(Piece* piece, int row, int col, ColorType color, PieceType type);
+        bool validatePieceMovement(const std::string& pieceStr);
         std::string vectorToString(std::vector<std::pair<int,int>> vector);
         
-        std::string movePiece(std::string pieceString);
-        std::string pieceStringToPieces(std::string pieceString);
+        bool movePiece(std::string pieceString);
 };

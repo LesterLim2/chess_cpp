@@ -19,58 +19,6 @@ void Piece::stateType() {
     std::cout << "I am a generic piece\n";
 }
 
-//function is called when piece is moved (used for checkmate threats)
-void Piece::addDangerTiles(Board& board,DangerMap& dangerMap){
-    if (this->directions.empty()) throw std::runtime_error("no directions inialised for piece");
-    auto& [originalX,originalY] = position;
-    for (auto& dir : directions){
-        int x = originalX;
-        int y = originalY;
-        int xDir = dir.second;
-        int yDir = dir.first;
-
-        x += xDir;
-        y += yDir;
-        while(board.isInBounds(x,y)){
-            Piece* piece = board.getPiece(x,y);
-            if (piece == nullptr){
-                dangerMap.insertDanger(x,y,color);
-            }
-            else if (piece->getColor() != color){
-                if(piece->getType() == PieceType::King){
-                    //checkflag
-                }
-                dangerMap.insertDanger(x,y,color);
-                break;
-            }
-            else{
-                break;
-            }
-            x += xDir;
-            y += yDir;
-        }
-    }
-}
-
-//function is called when a piece is moved
-void Piece::removeDangerTiles(DangerMap& dangerMap){
-    for(auto& danger:dangerTiles){
-        dangerMap.removeDanger(position.first,position.second,color);
-    }
-    dangerTiles = {};
-}
-
-
-std::vector<std::pair<int,int>> Piece::getDangerTiles(){
-    return dangerTiles;
-}
-
-void Piece::setDangerTiles(std::vector<std::pair<int,int>> tiles){
-    dangerTiles = tiles;
-}
-
-
-
 std::vector<std::pair<int,int>> Piece::getDanger(){
     return danger;
 }
@@ -101,34 +49,15 @@ void Piece::setPosition(int x, int y){
 }
 
 std::string Piece::checkPreMoves(Board& board){
-    std::string availablePreMoves = vectorToString(checkMovement(board)) + "c";
-    availablePreMoves += vectorToString(checkCapture(board));
+    std::string availablePreMoves = checkMovement(board);
     return availablePreMoves != "c" ? availablePreMoves : "None";
 }
 
-std::vector<std::pair<int,int>> Piece::checkMovement(Board& board){
+std::string Piece::checkMovement(Board& board){
     int y = position.first;
     int x = position.second;
-    std::vector<std::pair<int,int>> availableMoves = {};
-
-    for(auto& dir : directions){
-        int dy = dir.second;
-        int dx = dir.first;
-        int curY = y + dy;
-        int curX = x + dx;
-        while(board.checkSquareAvailability(curY, curX)){
-            availableMoves.push_back({curY, curX});
-            curY += dy;
-            curX += dx;
-        }
-    }
-    return availableMoves;
-}
-
-std::vector<std::pair<int,int>> Piece::checkCapture(Board& board){
-    int y = position.first;
-    int x = position.second;
-    std::vector<std::pair<int,int>> availableCaptures = {};
+    std::string availableMoves = "";
+    std::string availableCaptures = "";
 
     for(auto& dir : directions){
         int dy = dir.second;
@@ -137,26 +66,50 @@ std::vector<std::pair<int,int>> Piece::checkCapture(Board& board){
         int curX = x + dx;
         while(board.isInBounds(curY, curX)){
             if(board.checkSquareAvailability(curY, curX)){
+                availableMoves += curY + '0';
+                availableMoves += curX + '0';
+                availableMoves += '&';
                 curY += dy;
                 curX += dx;
-                continue;
             }
-            if(board.isAvailableToCapture(color, curY, curX)){
-                availableCaptures.push_back({curY, curX});
+            else{
+                if(board.isAvailableToCapture(color, curY, curX)){
+                    availableCaptures += curY + '0';
+                    availableCaptures += curX + '0';
+                    availableCaptures += '&';
+                }
+                break;
             }
-            break;
         }
     }
-    return availableCaptures;
+    return availableMoves + "c" + availableCaptures;
 }
 
-std::string Piece::vectorToString(std::vector<std::pair<int,int>> vector){
-    std::string convertedString = "";
-    for (auto& element: vector){
-        int x = element.first;
-        int y = element.second;
-        convertedString +=  std::to_string(x) + std::to_string(y) + "&";
+std::string Piece::checkThreats(Board& board){
+    int y = position.first;
+    int x = position.second;
+    std::string availableThreats = "";
+    std::cout <<"im checking the threats" <<std::endl;
+    for (auto& d : danger){
+        int threatY = y + d.second;
+        int threatX = x + d.first;
+        if (board.isInBounds(threatY, threatX)){
+            Piece* piece = board.getPiece(threatY, threatX);
+            if (piece == nullptr || piece->getColor() != color){
+                availableThreats += threatY + '0';
+                availableThreats += threatX + '0';
+                availableThreats += '&';
+            }
+        }
     }
-    return convertedString;
+    std::cout << availableThreats << std::endl;
+    return availableThreats;
+}
 
+void Piece::setHasMoved(bool hasMoved){
+    this->hasMoved = hasMoved;
+}
+
+bool Piece::getHasMoved(){
+    return hasMoved;
 }

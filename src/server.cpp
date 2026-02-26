@@ -26,9 +26,7 @@ void Server::setUpRoutes(){
 
     svr.Get("/move-piece", [&](const httplib::Request& req, httplib::Response& res) {
         std::string pieceString = req.get_param_value("pieces");
-
-        std::string moveString = game.movePiece(pieceString);
-        res.set_content(moveString,"text/plain");
+        res.set_content(game.movePiece(pieceString) ? "validated" : "Error","text/plain");
     });
 }
 void Server::start(){

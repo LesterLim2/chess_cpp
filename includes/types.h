@@ -31,5 +31,19 @@ inline std::unordered_map<std::string,ColorType> stringToColorType = {
     {"Black", ColorType::Black},
     {"None",  ColorType::None}
 };
+inline std::unordered_map<char,PieceType> charToPieceType = {
+    {'p', PieceType::Pawn},
+    {'b', PieceType::Bishop},
+    {'n', PieceType::Knight},
+    {'r', PieceType::Rook},
+    {'q', PieceType::Queen},
+    {'k', PieceType::King},
+    {'o', PieceType::None}
+};
+inline std::unordered_map<char,ColorType> charToColorType = {
+    {'w', ColorType::White},
+    {'b', ColorType::Black},
+    {'o', ColorType::None}
+};
 inline int rankFromIndex(int y) { return y + 1; }
 inline char fileFromIndex(int x) { return 'A' + x; }

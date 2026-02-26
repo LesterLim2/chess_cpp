@@ -9,8 +9,6 @@ class DangerMap;
 
 class Pawn : public Piece{
 private:
-    bool hasMoved = false;
-    std::vector<std::pair<int,int>> direction;
     std::vector<std::pair<std::pair<int,int>,moveType>> availableSquaresToMove = {};
 
     void determineDirection();
@@ -19,12 +17,9 @@ private:
 public:
     Pawn(ColorType color, std::pair<int,int> positon);
     void stateType() override;
-    std::vector<std::pair<int,int>> checkCapture(Board& board) override;
 
     void promotion(Board& board);
+    std::string checkMovement(Board& board) override;
 
-    void addDangerTiles(Board& board,DangerMap& dangerMap) override;
-    std::vector<std::pair<int,int>> checkMovement(Board& board) override;
 
-    
 };
