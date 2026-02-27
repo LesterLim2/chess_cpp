@@ -21,67 +21,38 @@ void DangerMap::insertDanger(int x, int y,ColorType color){
 }
 
 
-void DangerMap::removeDanger(std::string availableMoves, ColorType color, PieceType type){
-std::cout << "im changing dangerBlack" <<std::endl;
+int DangerMap::getDangerCount(int row,int col,ColorType color){
     std::vector<std::vector<int>>& selectedDangerMap =  color == ColorType::White ? dangerMapWhite : dangerMapBlack;
-    if(selectedDangerMap == dangerMapBlack){
-        std::cout << "fucking loser" <<std::endl;
-    }
-    std::cout << "please die asshole";
-    if (type == PieceType::Bishop || type == PieceType::Queen || type == PieceType::Rook){
-        for(int i = 0; i < availableMoves.size() ; i++){
-            if(availableMoves[i] == 'c'){
-                continue;
-            }
-            if(availableMoves[i] == '&'){
-                selectedDangerMap[availableMoves[i-2] - '0'][availableMoves[i-1] - '0']--;
-            }
-        }
-    }
-    else{
-        bool isCapturing = false;
-        for(int i = 0; i < availableMoves.size(); i++){
-            if(availableMoves[i] == 'c'){
-                isCapturing = true;
-            }
-            if(!isCapturing){
-                continue;
-            }
-            if(isCapturing && availableMoves[i] == '&'){
-                selectedDangerMap[availableMoves[i-2] - '0'][availableMoves[i-1] - '0']--;
-
-            }
-        }
-    }
+    return selectedDangerMap[row][col];
 }
 
-void DangerMap::addDanger(std::string availableMoves, ColorType color, PieceType type){
+void DangerMap::removeDanger(std::string availableMoves, ColorType color){
     std::vector<std::vector<int>>& selectedDangerMap =  color == ColorType::White ? dangerMapWhite : dangerMapBlack;
-    if (type == PieceType::Bishop || type == PieceType::Queen || type == PieceType::Rook){
-        for(int i = 0; i < availableMoves.size() ; i++){
-            if(availableMoves[i] == 'c'){
-                continue;
-            }
-            if(availableMoves[i] == '&'){
-                selectedDangerMap[availableMoves[i-2] - '0'][availableMoves[i-1] - '0']++;
-            }
-        }  
-    }
-    else{
-        bool isCapturing = false;
-        for(int i = 0; i < availableMoves.size(); i++){
-            if(availableMoves[i] == 'c'){
-                isCapturing = true;
-            }
-            if(!isCapturing){
-                continue;
-            }
-            if(isCapturing && availableMoves[i] == '&'){
-                selectedDangerMap[availableMoves[i-2] - '0'][availableMoves[i-1] - '0']++;
-            }
+    std::cout << "im in remove danger" <<std::endl;
+    for(int i = 0; i < availableMoves.size() ; i++){
+        if(availableMoves[i] == 'c'){
+            continue;
+        }
+        if(availableMoves[i] == '&'){
+            selectedDangerMap[availableMoves[i-2] - '0'][availableMoves[i-1] - '0']--;
         }
     }
+    color == ColorType::White ? stateDangerMap(ColorType::White) : stateDangerMap(ColorType::Black);
 }
+
+void DangerMap::addDanger(std::string availableMoves, ColorType color){
+    std::vector<std::vector<int>>& selectedDangerMap =  color == ColorType::White ? dangerMapWhite : dangerMapBlack;
+    for(int i = 0; i < availableMoves.size() ; i++){
+        if(availableMoves[i] == 'c'){
+            continue;
+        }
+        if(availableMoves[i] == '&'){
+            selectedDangerMap[availableMoves[i-2] - '0'][availableMoves[i-1] - '0']++;
+        }
+    }
+    color == ColorType::White ? stateDangerMap(ColorType::White) : stateDangerMap(ColorType::Black);
+}
+
 //when game starts
 void DangerMap::initaliseDanger(){
     for(int j= 0; j < 8;j++){
@@ -97,6 +68,49 @@ void DangerMap::initaliseDanger(){
     std::cout << "black\n" <<std::endl;
     stateDangerMap(ColorType::Black);
 
+}
+
+void DangerMap::updateBlockPieces(Board& board, int originalRow, int originalCol, ColorType color, int skipRow, int skipCol){
+    for(auto& dir:dangerDirections){
+        int dy = dir.first;
+        int dx = dir.second;
+        int row = originalRow;
+        int col = originalCol;
+        row += dx;
+        col += dy;
+        std::vector<std::pair<int,int>> updatedTiles =  {{originalRow,originalCol}};
+        while(board.isInBounds(row,col)){
+
+            Piece* piece = board.getPiece(row,col);
+
+            if(piece == nullptr){
+                updatedTiles.push_back({row,col});
+                row += dx;
+                col += dy;
+                continue;
+            }
+            if(row == skipRow && col == skipCol){
+                break;
+            }
+            PieceType type  = piece->getType();
+            std::vector<std::pair<int,int>> pieceDirections = piece->getDirections();
+            ColorType pieceColor = piece->getColor();
+            bool isAffected = std::find(pieceDirections.begin(),pieceDirections.end(),dir) != pieceDirections.end();
+            
+            if (piece->getIsSliding() && isAffected){
+                std::vector<std::vector<int>>& selectedDangerMap = pieceColor == ColorType::White ? dangerMapWhite : dangerMapBlack;
+                for(auto& tile: updatedTiles){
+                    selectedDangerMap[tile.first][tile.second]++;
+                }
+                break;
+            }
+            else{
+                break;
+            }
+            row += dx;
+            col += dy;
+        }
+    }
 }
 
 void DangerMap::stateDangerMap(ColorType color){

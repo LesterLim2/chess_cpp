@@ -8,6 +8,7 @@
 Bishop::Bishop(ColorType color, std::pair<int,int> position)
     : Piece(color, PieceType::Bishop, position) {
     directions = {{1,1},{1,-1},{-1,1},{-1,-1}};
+    isSliding = true;
 }
 
 

@@ -28,7 +28,7 @@ void Server::setUpRoutes(){
     svr.Get("/move-piece", [&](const httplib::Request& req, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin","*");
         std::string pieceString = req.get_param_value("pieces");
-        res.set_content(game.movePiece(pieceString) ? "validated" : "Error","text/plain");
+        res.set_content(game.movePiece(pieceString),"text/plain");
     });
 }
 void Server::start(){

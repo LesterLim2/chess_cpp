@@ -99,14 +99,13 @@ async function onTileClicked(row,col){
 
 async function movePiece(row,col){
     let url = `http://localhost:8080/move-piece?pieces=`;
-    console.log(pieceArray);
     let [originalRow,originalCol] = selectedPiece[0];
     url += createMovePieceString(originalRow,originalCol,row,col);
     console.log(url);
     const response = await fetch(url);
     let text = await response.text();
 
-    if(text != "validated"){
+    if(text == "inValid"){
         console.warn("backend Error");
         return;
     }
@@ -120,6 +119,28 @@ async function movePiece(row,col){
     pieceArray[row][col] = pieceArray[originalRow][originalCol];
     pieceArray[row][col].position = [row, col];
     pieceArray[originalRow][originalCol] = null;
+
+    if(text.length > 0){
+        const pawnPromotion = text.filter(x => x.includes('p'));
+        if(pawnPromotion.length > 0){
+            const promotionChar = await generatePromotion(pieceArray[row][col].color);
+            newTile.querySelector('img').remove();   
+            placePiece(newTile, pieceArray[row][col].color, textToType[promotionChar], row, col);
+
+        }
+        const checkIndex = text.indexOf('c');
+        if (checkIndex == -1){
+            return;
+        }
+        const checkData = text.slice(checkIndex + 1);
+        if(checkData.length == 0){
+            //checkmate!
+        }
+        else{
+            //check
+        }
+
+    }
 }
 
 function createMovePieceString(originalRow,originalCol,newRow,newCol){
@@ -234,4 +255,36 @@ function placePiece(tile, color, type, row, col){
     let img = document.createElement('img');
     img.src = generateImageText(pieceArray[row][col]);
     tile.append(img);
+}
+
+const textToType = {
+    'q' : 'Queen',
+    'r' : 'Rook',
+    'b' : 'Bishop',
+    'n' : 'Knight'
+}
+
+async function generatePromotion(color){
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('promotionOverlay');
+        const container = document.getElementById('promotionContainer');
+        const prefix = color === 'White' ? 'w' : 'b';
+        const pieces = ['q', 'r', 'b', 'n'];
+
+        container.innerHTML = '';
+        pieces.forEach(p => {
+            const tile = document.createElement('div');
+            tile.classList.add('promotionTile');
+            const img = document.createElement('img');
+            img.src = `static/images/vintage/${prefix}${p}.png`;
+            tile.appendChild(img);
+            tile.addEventListener('click', () => {
+                overlay.classList.add('hidden');
+                resolve(p);
+            });
+            container.appendChild(tile);
+        });
+
+        overlay.classList.remove('hidden');
+    });
 }

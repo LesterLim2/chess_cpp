@@ -89,7 +89,6 @@ std::string Piece::checkThreats(Board& board){
     int y = position.first;
     int x = position.second;
     std::string availableThreats = "";
-    std::cout <<"im checking the threats" <<std::endl;
     for (auto& d : danger){
         int threatY = y + d.second;
         int threatX = x + d.first;
@@ -112,4 +111,12 @@ void Piece::setHasMoved(bool hasMoved){
 
 bool Piece::getHasMoved(){
     return hasMoved;
+}
+
+bool Piece::getIsSliding(){
+    return isSliding;
+}
+
+std::vector<std::pair<int,int>> Piece::getDirections(){
+    return directions;
 }

@@ -7,6 +7,8 @@
 #include "bishop.h"
 #include "rook.h"
 #include "queen.h"
+#include "knight.h"
+#include "king.h"
 #include "types.h"
 
 
@@ -112,8 +114,11 @@ void Board::backRowPlace(int row, int col){
         case 7: 
             placePiece(std::make_unique<Rook>(color, std::make_pair(row,col)));
             break;
-        case 1: // place Knight at pos with color
-        case 6: // place Knight at pos with color
+        case 1:
+            placePiece(std::make_unique<Knight>(color,std::make_pair(row,col)));
+            break;
+        case 6:
+            placePiece(std::make_unique<Knight>(color,std::make_pair(row,col)));
             break;
         case 2: 
             placePiece(std::make_unique<Bishop>(color, std::make_pair(row,col)));
@@ -124,7 +129,8 @@ void Board::backRowPlace(int row, int col){
         case 3:
             placePiece(std::make_unique<Queen>(color,std::make_pair(row,col)));
             break;
-        case 4: // place King at pos with color
+        case 4:
+            placePiece(std::make_unique<King>(color,std::make_pair(row,col)));
             break;
     }
 }

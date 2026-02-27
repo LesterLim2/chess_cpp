@@ -14,13 +14,17 @@ class Game{
     private:
         Board& board;
         DangerMap& dangerMap;
+        std::pair<int,int> whiteKingCoordinates;
+        std::pair<int,int> blackKingCoordinates;
     public:
         Game(Board& board,DangerMap& dangerMap);
         std::string preMove(int row, int col, ColorType color, PieceType type);
         std::string getMovementString(int row,int col);
         bool isValidatedPiece(Piece* piece, int row, int col, ColorType color, PieceType type);
         bool validatePieceMovement(const std::string& pieceStr);
-        std::string vectorToString(std::vector<std::pair<int,int>> vector);
         
-        bool movePiece(std::string pieceString);
+        std::string movePiece(std::string pieceString);
+        bool checkPromotion(ColorType movingColor,int PostROw);
+        std::string getPossibleunCheckMoves(ColorType opponentColor,std::pair<int,int> kingCoordinates);
+        std::string simulateUncheckMoves(Piece* currentPiece,std::pair<int,int> kingCoordinates);
 };
