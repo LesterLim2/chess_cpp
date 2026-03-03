@@ -29,6 +29,10 @@ void Server::setUpRoutes(){
         res.set_header("Access-Control-Allow-Origin","*");
         std::string pieceString = req.get_param_value("pieces");
         res.set_content(game.movePiece(pieceString),"text/plain");
+
+        std::cout << "Piece moved: row=" << (pieceString[4]-'0') << " col=" << (pieceString[5]-'0')
+          << " type=" << pieceString[2]
+          << " color=" << pieceString[3] << std::endl;
     });
 }
 void Server::start(){

@@ -8,4 +8,7 @@ app.get('/', (req,res) => {
     }   
 );
 
+app.get('/',(req,res) =>{
+    res.sendFile(__dirname + "/static/titleScreen.html");
+})
 app.listen(3000, () => console.log('Listening on http://localhost:3000'));

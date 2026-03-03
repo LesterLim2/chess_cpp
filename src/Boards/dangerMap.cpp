@@ -28,7 +28,6 @@ int DangerMap::getDangerCount(int row,int col,ColorType color){
 
 void DangerMap::removeDanger(std::string availableMoves, ColorType color){
     std::vector<std::vector<int>>& selectedDangerMap =  color == ColorType::White ? dangerMapWhite : dangerMapBlack;
-    std::cout << "im in remove danger" <<std::endl;
     for(int i = 0; i < availableMoves.size() ; i++){
         if(availableMoves[i] == 'c'){
             continue;
@@ -80,7 +79,6 @@ void DangerMap::updateBlockPieces(Board& board, int originalRow, int originalCol
         col += dy;
         std::vector<std::pair<int,int>> updatedTiles =  {{originalRow,originalCol}};
         while(board.isInBounds(row,col)){
-
             Piece* piece = board.getPiece(row,col);
 
             if(piece == nullptr){
@@ -90,25 +88,35 @@ void DangerMap::updateBlockPieces(Board& board, int originalRow, int originalCol
                 continue;
             }
             if(row == skipRow && col == skipCol){
-                break;
+                updatedTiles.push_back({row, col});
+                row += dx;
+                col += dy;
+                continue;
             }
+
             PieceType type  = piece->getType();
             std::vector<std::pair<int,int>> pieceDirections = piece->getDirections();
             ColorType pieceColor = piece->getColor();
-            bool isAffected = std::find(pieceDirections.begin(),pieceDirections.end(),dir) != pieceDirections.end();
+            bool isAffected = type == PieceType::Bishop || type == PieceType::Queen || type == PieceType::Rook;
             
             if (piece->getIsSliding() && isAffected){
-                std::vector<std::vector<int>>& selectedDangerMap = pieceColor == ColorType::White ? dangerMapWhite : dangerMapBlack;
+                auto& selectedDangerMap = pieceColor == ColorType::White ? dangerMapWhite : dangerMapBlack;
                 for(auto& tile: updatedTiles){
                     selectedDangerMap[tile.first][tile.second]++;
+                }
+                int farRow = originalRow - dx;
+                int farCol = originalCol - dy;
+                while(board.isInBounds(farRow, farCol)){
+                    if(board.getPiece(farRow, farCol) != nullptr) break;
+                    selectedDangerMap[farRow][farCol]++;
+                    farRow -= dx;
+                    farCol -= dy;
                 }
                 break;
             }
             else{
                 break;
             }
-            row += dx;
-            col += dy;
         }
     }
 }

@@ -47,3 +47,4 @@ inline std::unordered_map<char,ColorType> charToColorType = {
 };
 inline int rankFromIndex(int y) { return y + 1; }
 inline char fileFromIndex(int x) { return 'A' + x; }
+inline std::vector<int> adjacacentHorizontalTiles = {1,-1};

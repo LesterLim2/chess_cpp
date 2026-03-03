@@ -15,6 +15,7 @@ protected:
     std::vector<std::pair<int,int>> directions;
     bool hasMoved = false;
     bool isSliding = false;
+    int firstMovement = 0;
 
 public:
     Piece(ColorType color = ColorType::None,
@@ -42,6 +43,8 @@ public:
 
     bool getHasMoved();
     void setHasMoved(bool hasMoved);
+    void setFirstMovement(int firstMovement);
+    int getFirstMovement();
     bool getIsSliding();
 
     std::vector<std::pair<int,int>> getDirections();

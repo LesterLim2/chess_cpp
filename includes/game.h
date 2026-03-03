@@ -16,6 +16,7 @@ class Game{
         DangerMap& dangerMap;
         std::pair<int,int> whiteKingCoordinates;
         std::pair<int,int> blackKingCoordinates;
+        int turn = 1;
     public:
         Game(Board& board,DangerMap& dangerMap);
         std::string preMove(int row, int col, ColorType color, PieceType type);
@@ -25,6 +26,6 @@ class Game{
         
         std::string movePiece(std::string pieceString);
         bool checkPromotion(ColorType movingColor,int PostROw);
-        std::string getPossibleunCheckMoves(ColorType opponentColor,std::pair<int,int> kingCoordinates);
-        std::string simulateUncheckMoves(Piece* currentPiece,std::pair<int,int> kingCoordinates);
+        std::string getPossibleunCheckMoves(ColorType opponentColor, std::pair<int,int> kingCoordinates, std::pair<int,int> checkerCoordinates, PieceType checkerType);
+        std::string simulateUncheckMoves(Piece* currentPiece, std::pair<int,int> kingCoordinates, std::pair<int,int> checkerCoordinates, PieceType checkerType);
 };

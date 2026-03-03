@@ -109,6 +109,14 @@ void Piece::setHasMoved(bool hasMoved){
     this->hasMoved = hasMoved;
 }
 
+void Piece::setFirstMovement(int firstMovement){
+    this->firstMovement = firstMovement;
+}
+
+int Piece::getFirstMovement(){
+    return firstMovement;
+}
+
 bool Piece::getHasMoved(){
     return hasMoved;
 }

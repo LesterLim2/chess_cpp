@@ -29,7 +29,10 @@ Piece* Board::getPiece(int x, int y) {
 void Board::movePiece(int originalX, int originalY, int newX, int newY) {
     Piece* piece = getPiece(originalX,originalY);
     if (!piece->getHasMoved()){
-        piece->setHasMoved(true);
+        piece->setHasMoved(true); //used for rooks and pawns
+        if(piece->getType() == PieceType::Pawn){
+            piece->setFirstMovement(piece->getColor() == ColorType::White ? (newY - originalY) : (originalY - newY));
+        }  
     }
     board[newX][newY] = std::move(board[originalX][originalY]);
     board[newX][newY]->setPosition(newX, newY);
