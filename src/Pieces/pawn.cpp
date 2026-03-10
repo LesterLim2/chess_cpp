@@ -66,7 +66,12 @@ std::string Pawn::checkMovement(Board& board){
 
     //check en passant
     
-    return availableMoves + "c" + availableCaptures + 'n' + availableEnPassant;
+    return availableMoves + "c" + availableCaptures + (availableEnPassant.empty() ? "" : "n" + availableEnPassant);
+}
+
+std::string Pawn::checkPreMoves(Board& board){
+    std::string movement = checkMovement(board);
+    return movement.find('&') != std::string::npos ? movement : "None";
 }
 
 //called when pawn moves to end of the board

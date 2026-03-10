@@ -33,6 +33,7 @@ void Board::movePiece(int originalX, int originalY, int newX, int newY) {
         if(piece->getType() == PieceType::Pawn){
             piece->setFirstMovement(piece->getColor() == ColorType::White ? (newY - originalY) : (originalY - newY));
         }  
+        
     }
     board[newX][newY] = std::move(board[originalX][originalY]);
     board[newX][newY]->setPosition(newX, newY);

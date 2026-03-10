@@ -35,3 +35,7 @@ std::string Knight::checkMovement(Board& board){
 
     return availableMoves + "c" + availableCaptures;
 }
+
+std::string Knight::checkPreMoves(Board& board){
+    return checkThreats(board);
+}

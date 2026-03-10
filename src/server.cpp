@@ -34,6 +34,7 @@ void Server::setUpRoutes(){
           << " type=" << pieceString[2]
           << " color=" << pieceString[3] << std::endl;
     });
+    
 }
 void Server::start(){
     std::cout << "Server listening on http://localhost:" << port << std::endl;

@@ -9,6 +9,8 @@ class Piece;
 
 class DangerMap;
 
+class Player;
+
 class Board {
 private:
     std::vector<std::vector<std::unique_ptr<Piece>>> board;

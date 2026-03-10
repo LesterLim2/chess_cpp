@@ -6,6 +6,7 @@ function Piece(color,type,position){
 
 const pieceArray = Array.from({length : 8}, () => Array(8).fill(null));
 const backRowsArray = ["Rook","Knight","Bishop","Queen","King","Bishop","Knight","Rook"];
+let isWhiteTurn = true;
 document.addEventListener('DOMContentLoaded',function(){
     const board = document.getElementById('chessBoard');
     for(let i = 7; i >= 0; i--){
@@ -98,8 +99,14 @@ async function onTileClicked(row,col){
 }
 
 async function movePiece(row,col){
-    let url = `http://localhost:8080/move-piece?pieces=`;
     let [originalRow,originalCol] = selectedPiece[0];
+    if((pieceArray[originalRow][originalCol].color == "White" && !isWhiteTurn )||(pieceArray[originalRow][originalCol].color == "Black" && isWhiteTurn)){
+        console.log(`currentTurn is ${pieceArray[originalRow][originalCol].color}, it is not your turn`);
+        return;
+    }
+
+    let url = `http://localhost:8080/move-piece?pieces=`;
+    
     url += createMovePieceString(originalRow,originalCol,row,col);
     console.log(url);
     const response = await fetch(url);
@@ -141,6 +148,7 @@ async function movePiece(row,col){
         }
 
     }
+    isWhiteTurn = !isWhiteTurn;
 }
 
 function createMovePieceString(originalRow,originalCol,newRow,newCol){

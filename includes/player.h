@@ -1,13 +1,13 @@
 #pragma once
 
-#include<iostream>
+#include <iostream>
+#include "types.h"
 
-
-class Board;
-class Piece;
+class Game;
 
 class Player{
-    private:
-    public:
-        Player();
+private:
+    ColorType color;
+public:
+    Player(ColorType color);
 };

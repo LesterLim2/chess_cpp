@@ -8,4 +8,8 @@ Rook::Rook(ColorType c, std::pair<int,int> p) : Piece(c,PieceType::Rook,p){
     isSliding = true;
 }
 
+std::string Rook::checkPreMoves(Board& board){
+    return checkMovement(board);
+}
+
 
