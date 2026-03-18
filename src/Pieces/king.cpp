@@ -2,6 +2,7 @@
 
 #include "king.h"
 #include "board.h"
+#include "dangerMap.h"
 
 King::King(ColorType color, std::pair<int,int> position)
     : Piece(color,PieceType::King,position){
@@ -32,5 +33,59 @@ std::string King::checkMovement(Board& board){
         }
     }
 
-    return availableMoves + "c" + availableCaptures;
+    std::string result = availableMoves + "c" + availableCaptures;
+    return result != "c" ? result : "None";
+}
+
+std::string King::checkMovement(Board& board, DangerMap& dangerMap){
+    std::string result = checkMovement(board);
+    if(!hasMoved){
+        std::string availableCastles = "";
+        result += checkCastle(board, dangerMap, availableCastles);
+    }
+    return result != "c" ? result : "None";
+}
+
+std::string King::checkCastle(Board& board, DangerMap& dangerMap, std::string& availableCastles){
+    int castleRow = color == ColorType::White ? 0 : 7;
+    for(int castleCol : castleCols){
+       
+        Piece* piece = board.getPiece(castleRow,castleCol);
+        if(piece->getType() != PieceType::Rook && piece->getHasMoved()){
+            continue;
+        }
+        auto [row,col] = position; 
+        if(row != castleRow){
+            std::cout << "error, kings original position does not exist at the original row" <<std::endl;
+            return "";
+        }
+
+        ColorType checkColor = color == ColorType::White ? ColorType::Black : ColorType::White;
+        int dir = col > castleCol ? -1 : 1;
+        int curCol = col + dir;
+        int curRow = castleRow;
+        bool canCastle = true;
+        while(std::abs(curCol - castleCol) > 0){
+            if(board.getPiece(curRow,curCol) != nullptr || dangerMap.getDangerCount(curRow,curCol,checkColor) > 0){
+                canCastle = false;
+                break;
+            }
+            curCol += dir;
+        }
+
+        if(!canCastle) continue;
+       
+        //all checks succeded append king and rook coordinates
+        availableCastles += "o";
+        //append kings coordinates
+        availableCastles += row + '0';
+        availableCastles += col + '0';        
+        //append rook coordinates
+        availableCastles += castleRow + '0';
+        availableCastles += castleCol + '0';
+        availableCastles += '&';
+        std::cout << "@king.cpp/checkCastle" << " king is able to castle moveString == " << availableCastles << std::endl;
+    }
+
+    return availableCastles;
 }

@@ -5,6 +5,14 @@
 #include <array>
 
 #include "piece.h"
+#include "pawn.h"
+#include "bishop.h"
+#include "rook.h"
+#include "queen.h"
+#include "knight.h"
+#include "king.h"
+#include "types.h"
+
 class Piece;
 
 class DangerMap;

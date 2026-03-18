@@ -21,31 +21,52 @@ void Server::setUpRoutes(){
           << " type=" << req.get_param_value("pieceType")
           << " color=" << req.get_param_value("colorType") << std::endl;
 
-        std::string preMoveString = game.preMove(row,col,color,type);
+        std::string preMoveString = "None";
+        try{
+            preMoveString = game.preMove(row,col,color,type);
+        } catch(const std::exception& e){
+            std::cout << "preMove exception: " << e.what() << std::endl;
+        } catch(...){
+            std::cout << "preMove unknown exception" << std::endl;
+        }
         res.set_content(preMoveString,"text/plain");
     });
 
     svr.Get("/move-piece", [&](const httplib::Request& req, httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin","*");
         std::string pieceString = req.get_param_value("pieces");
-        res.set_content(game.movePiece(pieceString),"text/plain");
+        std::string moveResultString = "";
+        try{
+            moveResultString = game.movePiece(pieceString);
+        }
+        catch(const std::exception &e){
+            std::cout << "an exception has occured :" << e.what() << std::endl;
+        }
+        res.set_content(moveResultString,"text/plain");
 
         std::cout << "Piece moved: row=" << (pieceString[4]-'0') << " col=" << (pieceString[5]-'0')
           << " type=" << pieceString[2]
           << " color=" << pieceString[3] << std::endl;
     });
 
-     svr.Get("/pawn-promotion", [&](const httplib::Request& req, httplib::Response& res){
+    svr.Get("/pawn-promotion", [&](const httplib::Request& req, httplib::Response& res){
         res.set_header("Access-Control-Allow-Origin","*");
-        
+
         std::string promoteString = req.get_param_value("promoteValues");
         if (promoteString.size() != 4){
             std::cout << "Error promoteString size does not match requirements" <<std::endl;
             res.set_content("Error","text/plain");
         }
         res.set_content(game.pawnPromotion(promoteString),"text/plain");
-     });
+        });
     
+    svr.Get("/castling",[&](const httplib::Request& req,httplib::Response& res){
+        res.set_header("Access-Control-Allow-Origin","*");
+
+        std::string castleString = req.get_param_value("pieces");
+        std::cout << "castling content recieved, castleString = " << castleString << std::endl;
+        res.set_content(game.castling(castleString),"text/plain");
+    });
 }
 void Server::start(){
     std::cout << "Server listening on http://localhost:" << port << std::endl;

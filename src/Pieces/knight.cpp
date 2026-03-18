@@ -33,6 +33,7 @@ std::string Knight::checkMovement(Board& board){
         }
     }
 
-    return availableMoves + "c" + availableCaptures;
+    std::string result = availableMoves + "c" + availableCaptures;
+    return result != "c" ? result : "None";
 }
 

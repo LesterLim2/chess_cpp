@@ -51,4 +51,6 @@ class Game{
 
         std::string pawnPromotion(const std::string& promotionPiece);
         bool validatePawnPromotion(const PieceData& pieceData);
+
+        std::string castling(const std::string& castleString);
 };

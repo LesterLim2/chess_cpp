@@ -3,13 +3,6 @@
 #include <stdexcept>
 
 #include "board.h"
-#include "pawn.h"
-#include "bishop.h"
-#include "rook.h"
-#include "queen.h"
-#include "knight.h"
-#include "king.h"
-#include "types.h"
 
 
 Board::Board() {
@@ -29,7 +22,7 @@ Piece* Board::getPiece(int x, int y) {
 void Board::movePiece(int originalX, int originalY, int newX, int newY) {
     Piece* piece = getPiece(originalX,originalY);
     if (!piece->getHasMoved()){
-        piece->setHasMoved(true); //used for rooks and pawns
+        piece->setHasMoved(true); 
         if(piece->getType() == PieceType::Pawn){
             piece->setFirstMovement(piece->getColor() == ColorType::White ? (newY - originalY) : (originalY - newY));
         }  

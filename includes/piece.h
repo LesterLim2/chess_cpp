@@ -22,7 +22,7 @@ public:
           PieceType type = PieceType::None,
           std::pair<int,int> position = {-1,-1});
 
-    Piece(std::pair<int,int> position);   // no default needed
+    Piece(std::pair<int,int> position);   
     virtual ~Piece() = default;
 
     virtual void stateType();

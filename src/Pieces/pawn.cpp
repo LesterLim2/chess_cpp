@@ -51,7 +51,7 @@ std::string Pawn::checkMovement(Board& board){
     }
 
     std::string result = availableMoves + "c" + availableCaptures;
-    return result.find('&') != std::string::npos ? result : "None";
+    return result != "c" ? result : "None";
 }
 
 

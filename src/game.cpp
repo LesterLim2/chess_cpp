@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "game.h"
+#include "king.h"
 
 Game::Game(Board& b,DangerMap& d): board(b),dangerMap(d){
     playerWhite = std::make_unique<Player>(ColorType::White);
@@ -9,21 +10,25 @@ Game::Game(Board& b,DangerMap& d): board(b),dangerMap(d){
 
 std::string Game::preMove(int row, int col, ColorType color, PieceType type){
     Piece* piece = board.getPiece(row,col);
-    if (piece == nullptr && color != ColorType::None && type !=PieceType::None) return "Error: Piece mismatch";
+    if (piece == nullptr && color != ColorType::None && type !=PieceType::None) throw "Error: Piece mismatch";
     std::string availablePreMoves = "None";
+
     if(piece != nullptr){
         if(!isValidatedPiece(piece,row,col,color,type)){
-            return "Error: piece mismatch";
+            throw "Error: piece mismatch";
         }
-        if(color != ColorType::None && type != PieceType::None){
-            availablePreMoves = piece->checkMovement(board);
-            if(type == PieceType::Pawn && row == (color == ColorType::White ? 4 : 3)){
-                availablePreMoves += checkEnPassant(row, col, color);
-            }
+        if(color == ColorType::None && type == PieceType::None){
+            throw "test";
         }
-    }
-    return availablePreMoves;
-};
+        if (type == PieceType::King){
+            availablePreMoves = static_cast<King*>(piece)->checkMovement(board, dangerMap);
+        } 
+        else {
+        availablePreMoves = piece->checkMovement(board);
+        }
+    };
+    return availablePreMoves; 
+}
 
 std::string Game::getMovementString(int row, int col){
     Piece* piece = board.getPiece(row,col);
@@ -77,6 +82,8 @@ std::string Game::movePiece(std::string pieceString){
     }
     
     updateBlockPieces(preRow,preCol,movingColor,postRow,postCol);
+
+    
     std::string specialEvents = "";
 
     if(movingPiece == PieceType::Pawn){
@@ -102,9 +109,35 @@ std::string Game::pawnPromotion(const std::string& promotionPiece){
         std::cerr << "Exception occured: " << e.what() << std::endl;
         return "invalidated";
     }
+    //toDO danger map update.
     board.removePiece(board.getPiece(promotedPieceData.row,promotedPieceData.col));
     board.placePiece(board.createPromotionPiece(promotedPieceData.type, promotedPieceData.color, {promotedPieceData.row, promotedPieceData.col}));
     return "validated";
+}
+
+std::string Game::castling(const std::string& castleString){
+
+    PieceData kingData = parsePieceString(castleString.substr(0,4));
+    PieceData rookData = parsePieceString(castleString.substr(4,4));
+    try{
+        validatePieceMovement(kingData);
+        validatePieceMovement(rookData);
+    }
+    catch(const std::exception& e){
+        std::cout << "an exception has occured: " << e.what() << std::endl;
+    }
+
+    int kingDestCol =  rookData.col == 0 ? 2 : 6;
+    int rookDestCol = rookData.col == 0 ? 3 : 5;
+
+    //king movement
+    board.movePiece(kingData.row,kingData.col,kingData.row,kingDestCol);
+    //rook movement
+    board.movePiece(rookData.row,rookData.col,rookData.row,rookDestCol);
+    
+    incrementTurn();
+    return "validated";
+    //toDO dangerMapupdate
 }
 
 
