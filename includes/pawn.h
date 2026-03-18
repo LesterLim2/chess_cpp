@@ -20,7 +20,4 @@ public:
 
     void promotion(Board& board);
     std::string checkMovement(Board& board) override;
-    std::string checkPreMoves(Board& board) override;
-
-
 };

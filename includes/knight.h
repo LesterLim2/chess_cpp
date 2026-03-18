@@ -9,5 +9,4 @@ class Knight : public Piece{
 public:
     Knight(ColorType color, std::pair<int, int> position);
     std::string checkMovement(Board& board) override;
-    std::string checkPreMoves(Board& board) override;
 };

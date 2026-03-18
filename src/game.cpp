@@ -16,7 +16,10 @@ std::string Game::preMove(int row, int col, ColorType color, PieceType type){
             return "Error: piece mismatch";
         }
         if(color != ColorType::None && type != PieceType::None){
-            availablePreMoves = piece->checkPreMoves(board);
+            availablePreMoves = piece->checkMovement(board);
+            if(type == PieceType::Pawn && row == (color == ColorType::White ? 4 : 3)){
+                availablePreMoves += checkEnPassant(row, col, color);
+            }
         }
     }
     return availablePreMoves;
@@ -24,52 +27,45 @@ std::string Game::preMove(int row, int col, ColorType color, PieceType type){
 
 std::string Game::getMovementString(int row, int col){
     Piece* piece = board.getPiece(row,col);
-    return piece->checkPreMoves(board);
+    if(piece == nullptr) return "None";
+    return piece->checkMovement(board);
 }
+ 
 
-bool Game::validatePieceMovement(const std::string& pieceStr){
-    int row = pieceStr[0]-'0';
-    int col = pieceStr[1]-'0';
-    if (!board.isInBounds(row, col)){
-        throw std::runtime_error("Error: piece is not in bounds");
-        return false;
-    }
-    Piece* piece = board.getPiece(row, col);
-    if ((pieceStr[2] == 'o' && pieceStr[3] == 'o') && piece != nullptr){
-        throw std::runtime_error("Error: front and backend mismatch - expected empty square");
-        return false;
-    }
-    if((pieceStr[2] != 'o' && pieceStr[3] != 'o') && !isValidatedPiece(piece, row, col, charToColorType[pieceStr[3]], charToPieceType[pieceStr[2]])){
-        throw std::runtime_error("Error: front and backend mismatch");
-        return false;
-    }
-    return true;
+PieceData Game::parsePieceString(const std::string& s){
+    return { s[0]-'0', s[1]-'0', charToPieceType[s[2]], charToColorType[s[3]] };
 }
-
 
 
 std::string Game::movePiece(std::string pieceString){
     std::string preMovePiece = pieceString.substr(0,4);
     std::string postMovePiece = pieceString.substr(4,4);
-    
 
-    if(!validatePieceMovement(preMovePiece) || !validatePieceMovement(postMovePiece)){
+
+    PieceData pre = parsePieceString(preMovePiece);
+    PieceData post = parsePieceString(postMovePiece);
+
+    try{
+        validatePieceMovement(pre);
+        validatePieceMovement(post);
+    } catch(const std::runtime_error& e){
+        std::cout << "movePiece validation error: " << e.what() << std::endl;
         return "Invalid";
     }
 
-    ColorType movingColor = charToColorType[preMovePiece[3]];
-    PieceType movingPiece = charToPieceType[preMovePiece[2]];
-    int preRow = preMovePiece[0]-'0', preCol = preMovePiece[1]-'0';
-    int postRow = postMovePiece[0]-'0', postCol = postMovePiece[1]-'0';
-
-    //remove dangerMap for piece before movement
-    dangerMap.removeDanger(getMovementString(preRow, preCol), movingColor);
+    ColorType movingColor = pre.color;
+    PieceType movingPiece = pre.type;
+    int preRow = pre.row, preCol = pre.col;
+    int postRow = post.row, postCol = post.col;
 
     //remove dangerMap for captured piece if tile contains a piece
     if(postMovePiece[3] != 'o' && postMovePiece[2] != 'o'){
         ColorType capturedColor = charToColorType[postMovePiece[3]];
         dangerMap.removeDanger(getMovementString(postRow, postCol), capturedColor);
     }
+
+    //remove dangerMap for piece before movement
+    dangerMap.removeDanger(getMovementString(preRow, preCol), movingColor);
 
     //movement of piece + update of dangerMap corresponding to the piece new position
     board.movePiece(preRow, preCol, postRow, postCol);
@@ -80,19 +76,38 @@ std::string Game::movePiece(std::string pieceString){
         kingCoordinates = {postRow,postCol}; 
     }
     
-
     updateBlockPieces(preRow,preCol,movingColor,postRow,postCol);
     std::string specialEvents = "";
 
     if(movingPiece == PieceType::Pawn){
-        if(checkPromotion(movingColor,postRow)){
-            specialEvents += "p";
+        if(std::abs(preRow - postRow) == 2){
+            Piece*& target = movingColor == ColorType::White ? enPassantTargetWhite : enPassantTargetBlack;
+            int& counter = movingColor == ColorType::White ? enPassantCounterWhite : enPassantCounterBlack;
+            target  = board.getPiece(postRow, postCol);
+            counter = 1;
         }
     }
     specialEvents += handleCheck({postRow,postCol},movingPiece);   
     incrementTurn();
     return specialEvents;
 }
+
+std::string Game::pawnPromotion(const std::string& promotionPiece){
+    PieceData promotedPieceData = parsePieceString(promotionPiece);
+    
+    try{
+        validatePawnPromotion(promotedPieceData);
+    }
+    catch (const std::exception& e){
+        std::cerr << "Exception occured: " << e.what() << std::endl;
+        return "invalidated";
+    }
+    board.removePiece(board.getPiece(promotedPieceData.row,promotedPieceData.col));
+    board.placePiece(board.createPromotionPiece(promotedPieceData.type, promotedPieceData.color, {promotedPieceData.row, promotedPieceData.col}));
+    return "validated";
+}
+
+
 
 void Game::updateBlockPieces(int preRow,int preCol,ColorType movingColor,int postRow,int postCol){
     dangerMap.updateBlockPieces(board,preRow,preCol,movingColor,postRow,postCol);
@@ -116,11 +131,41 @@ std::string Game::handleCheck(std::pair<int,int> checkerCoordinates,PieceType ch
     return checkString;
 }
 
+
+std::string Game::checkEnPassant(int row, int col, ColorType color){
+    // The opponent's pawn is the en passant target for the current color
+    Piece* target = color == ColorType::White ? enPassantTargetBlack : enPassantTargetWhite;
+    if(target == nullptr) return "";
+
+    std::pair<int,int> targetPos = target->getPosition();
+    std::cout << "@checkEnPassant" << "target position = " << targetPos.second - '0' << targetPos.first - '0';
+
+    if(targetPos.first != row || std::abs(col - targetPos.second) != 1) return "";
+    
+    int dir = color == ColorType::White ? 1 : -1;
+    std::string result = "n";
+    result += (row + dir) + '0';
+    result += targetPos.second + '0';
+    result += '&';
+    return result;
+}
+
 void Game::incrementTurn(){
-    ColorType& cur = currentTurn;
-    currentTurn = cur == ColorType::White ? ColorType::Black : ColorType::White;
+    if(enPassantCounterWhite > 0){
+        enPassantCounterWhite--;
+    } else {
+        enPassantTargetWhite = nullptr;
+    }
+    if(enPassantCounterBlack > 0){
+        enPassantCounterBlack--;
+    } else {
+        enPassantTargetBlack = nullptr;
+    }
+    currentTurn = currentTurn == ColorType::White ? ColorType::Black : ColorType::White;
     if(currentTurn == ColorType::White) turn++;
 }
+
+
 
 //wtffff this is going to be a n^4 solution
 std::string Game::getPossibleunCheckMoves(ColorType opponentColor, std::pair<int,int> kingCoordinates, std::pair<int,int> checkerCoordinates, PieceType checkerType){
@@ -146,19 +191,12 @@ std::string Game::getPossibleunCheckMoves(ColorType opponentColor, std::pair<int
 }
 
 std::string Game::simulateUncheckMoves(Piece* currentPiece, std::pair<int,int> kingCoordinates, std::pair<int,int> checkerCoordinates, PieceType checkerType){
-    std::string availablePieceMoves = currentPiece->checkPreMoves(board);
+    std::string availablePieceMoves = currentPiece->checkMovement(board);
     std::cout << "im at simulateUncheckMoves" << availablePieceMoves << std::endl;
     return "";
 }
 
-bool Game::checkPromotion(ColorType movingColor,int postRow){
-    std::cout << postRow << std::endl;
-    int promotionTile = movingColor == ColorType::White ? 6 : 0;
-    if (promotionTile == postRow){
-        return true;
-    }
-    return false;
-}
+
 bool Game::isValidatedPiece(Piece* piece, int row, int col, ColorType color, PieceType type){
     std::pair<int,int> piecePosition = piece->getPosition();
     int pieceRow = piecePosition.first;
@@ -171,3 +209,27 @@ bool Game::isValidatedPiece(Piece* piece, int row, int col, ColorType color, Pie
     );
 }
 
+bool Game::validatePieceMovement(const PieceData& pieceData){
+    if (!board.isInBounds(pieceData.row, pieceData.col)){
+        throw std::runtime_error("Error: piece is not in bounds");
+    }
+    Piece* piece = board.getPiece(pieceData.row, pieceData.col);
+    if ((pieceData.type == PieceType::None && pieceData.color == ColorType::None) && piece != nullptr){
+        throw std::runtime_error("Error: front and backend mismatch - expected empty square");
+    }
+    if((pieceData.type != PieceType::None && pieceData.color != ColorType::None) && !isValidatedPiece(piece, pieceData.row, pieceData.col, pieceData.color, pieceData.type)){
+        throw std::runtime_error("Error: front and backend mismatch");
+    }
+    return true;
+}
+
+bool Game::validatePawnPromotion(const PieceData& pieceData){
+    if (!board.isInBounds(pieceData.row, pieceData.col)){
+    throw std::runtime_error("Error: piece is not in bounds");
+    }
+    Piece* piece = board.getPiece(pieceData.row, pieceData.col);
+    if ((pieceData.type == PieceType::Pawn && pieceData.color != ColorType::None)){
+        throw std::runtime_error("Error: front and backend mismatch - expected empty square");
+    }
+    return true;
+}

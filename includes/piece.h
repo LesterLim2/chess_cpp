@@ -37,7 +37,6 @@ public:
     virtual std::vector<std::pair<int,int>> getDanger();
     std::vector<std::pair<int,int>> getDangerTiles();
     
-    virtual std::string checkPreMoves(Board& board);
     virtual std::string checkMovement(Board& board);
     std::string checkThreats(Board& board);
 

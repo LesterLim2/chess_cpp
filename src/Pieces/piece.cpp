@@ -48,11 +48,6 @@ void Piece::setPosition(int x, int y){
     position = {x, y};
 }
 
-std::string Piece::checkPreMoves(Board& board){
-    std::string availablePreMoves = checkMovement(board);
-    return availablePreMoves != "c" ? availablePreMoves : "None";
-}
-
 std::string Piece::checkMovement(Board& board){
     int y = position.first;
     int x = position.second;
@@ -82,28 +77,11 @@ std::string Piece::checkMovement(Board& board){
             }
         }
     }
-    return availableMoves + "c" + availableCaptures;
+    std::string result = availableMoves + "c" + availableCaptures;
+    return result != "c" ? result : "None";
 }
 
-std::string Piece::checkThreats(Board& board){
-    int y = position.first;
-    int x = position.second;
-    std::string availableThreats = "";
-    for (auto& d : danger){
-        int threatY = y + d.second;
-        int threatX = x + d.first;
-        if (board.isInBounds(threatY, threatX)){
-            Piece* piece = board.getPiece(threatY, threatX);
-            if (piece == nullptr || piece->getColor() != color){
-                availableThreats += threatY + '0';
-                availableThreats += threatX + '0';
-                availableThreats += '&';
-            }
-        }
-    }
-    std::cout << availableThreats << std::endl;
-    return availableThreats;
-}
+
 
 void Piece::setHasMoved(bool hasMoved){
     this->hasMoved = hasMoved;

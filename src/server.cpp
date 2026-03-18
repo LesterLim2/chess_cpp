@@ -34,6 +34,17 @@ void Server::setUpRoutes(){
           << " type=" << pieceString[2]
           << " color=" << pieceString[3] << std::endl;
     });
+
+     svr.Get("/pawn-promotion", [&](const httplib::Request& req, httplib::Response& res){
+        res.set_header("Access-Control-Allow-Origin","*");
+        
+        std::string promoteString = req.get_param_value("promoteValues");
+        if (promoteString.size() != 4){
+            std::cout << "Error promoteString size does not match requirements" <<std::endl;
+            res.set_content("Error","text/plain");
+        }
+        res.set_content(game.pawnPromotion(promoteString),"text/plain");
+     });
     
 }
 void Server::start(){

@@ -138,6 +138,16 @@ void Board::backRowPlace(int row, int col){
             break;
     }
 }
+
+std::unique_ptr<Piece> Board::createPromotionPiece(PieceType type, ColorType color, std::pair<int,int> pos){
+    switch(type){
+        case PieceType::Queen:  return std::make_unique<Queen>(color, pos);
+        case PieceType::Rook:   return std::make_unique<Rook>(color, pos);
+        case PieceType::Bishop: return std::make_unique<Bishop>(color, pos);
+        case PieceType::Knight: return std::make_unique<Knight>(color, pos);
+        default: throw std::runtime_error("Invalid promotion type");
+    }
+}
 void Board::stateBoard() {
     for (int i = 7; i >= 0; i--) {
         for (int j = 0; j < 8; j++) {

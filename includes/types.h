@@ -7,6 +7,7 @@ enum class PieceType { None, Pawn, Bishop, Knight, Rook, Queen, King };
 enum class ColorType { White, Black, None };
 enum class moveType {Move,Capture};
 
+
 inline std::vector<std::string> backRowVector = {
     "Rook",
     "Knight",

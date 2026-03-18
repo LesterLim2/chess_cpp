@@ -113,44 +113,98 @@ async function movePiece(row,col){
     let text = await response.text();
 
     if(text == "inValid"){
-        console.warn("backend Error");
+        console.warn("backend Error (check c++)");
         return;
     }
 
+    //movement of pieces
+    pieceArray[row][col] = pieceArray[originalRow][originalCol];
+    pieceArray[row][col].position = [row, col];
+    pieceArray[originalRow][originalCol] = null;
+
+    //change board ui
+    moveImage(originalRow,originalCol,row,col);
+
+    if(pieceArray[row][col].type == "Pawn" && checkBackRank(pieceArray[row][col].color,row)){
+        console.log(`pawn promotion detected at row: ${row} col: ${col}`);
+        pawnPromotion(parseInt(row),parseInt(col),pieceArray[row][col].color);
+    }
+
+    isWhiteTurn = !isWhiteTurn;
+}
+
+function moveImage(originalRow,originalCol,row,col){
     let originalTile = document.querySelector(`[data-row="${originalRow}"][data-col="${originalCol}"]`);
     let newTile = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
     let capturedImg = newTile.querySelector('img');
     if(capturedImg) capturedImg.remove();
     newTile.appendChild(originalTile.querySelector('img'));
-
-    pieceArray[row][col] = pieceArray[originalRow][originalCol];
-    pieceArray[row][col].position = [row, col];
-    pieceArray[originalRow][originalCol] = null;
-
-    if(text.length > 0){
-        const pawnPromotion = text.filter(x => x.includes('p'));
-        if(pawnPromotion.length > 0){
-            const promotionChar = await generatePromotion(pieceArray[row][col].color);
-            newTile.querySelector('img').remove();   
-            placePiece(newTile, pieceArray[row][col].color, textToType[promotionChar], row, col);
-
-        }
-        const checkIndex = text.indexOf('c');
-        if (checkIndex == -1){
-            return;
-        }
-        const checkData = text.slice(checkIndex + 1);
-        if(checkData.length == 0){
-            //checkmate!
-        }
-        else{
-            //check
-        }
-
-    }
-    isWhiteTurn = !isWhiteTurn;
 }
 
+function checkBackRank(color,row){
+    return color == "White" ? row == 7 : row == 0;
+}
+
+const availablePromotionPieces = ["q","r","b","n"]
+const promotionPieces = [];
+async function pawnPromotion(row,col,color){
+    let dir = 0;
+    let colorChar = colorToChar[color];
+    while(Math.abs(dir) <= 3){
+        console.log(`1m at pawnPromotion current row is ${row + dir}`);
+        let promotionTile = document.querySelector(`[data-row="${row + dir}"][data-col="${col}"]`);
+        //generate the css and html of the selected piece and store them into promotionPieces (used to deselect created divs once done/cancel)
+        let promotionPiece = document.createElement("div");
+        let promotionImage = document.createElement("img");
+        let typeChar = availablePromotionPieces[Math.abs(dir)];
+        promotionImage.src = generateImageFromType(colorChar, typeChar);
+        promotionPiece.append(promotionImage);
+
+        promotionPiece.classList.add("promotionOption");
+        promotionPiece.dataset.promotionType = `${colorChar}${typeChar}`;
+        promotionTile.append(promotionPiece);
+        promotionTile.addEventListener('click',function(event){
+            event.stopPropagation();
+            promotionTileClicked(promotionPiece.dataset.promotionType, row, col)});
+
+        promotionPieces.push(promotionPiece);
+        color == "White" ? dir-- : dir++;
+    }
+}
+
+
+async function promotionTileClicked(promotionType,promotedRow,promotedCol){
+    const colorChar = promotionType[0];
+    const typeChar = promotionType[1];
+
+    let url = `http://localhost:8080/pawn-promotion?promoteValues=`;
+    url += `${promotedRow}${promotedCol}${typeChar}${colorChar}`;
+
+    const response = await fetch(url);
+    const text = await response.text();
+    if (text != "validated"){
+        throw "promotion error, check backend (c++)";
+    }
+
+    clearPromotionPieces();
+
+    const color = colorChar == 'w' ? 'White' : 'Black';
+    const type = charToType[typeChar];
+
+    let tile = document.querySelector(`[data-row="${promotedRow}"][data-col="${promotedCol}"]`);
+    tile.querySelector('img').remove();
+
+    pieceArray[promotedRow][promotedCol] = new Piece(color, type, [parseInt(promotedRow), parseInt(promotedCol)]);
+    let newImg = document.createElement('img');
+    newImg.src = generateImageFromType(colorChar, typeChar);
+    tile.appendChild(newImg);
+}
+
+function clearPromotionPieces(){
+    for(let i = 0; i < promotionPieces.length ; i++){
+        promotionPieces[i].remove();
+    }
+}
 function createMovePieceString(originalRow,originalCol,newRow,newCol){
     let pieceString = "";
     let originalPiece = pieceArray[originalRow][originalCol];
@@ -158,16 +212,16 @@ function createMovePieceString(originalRow,originalCol,newRow,newCol){
         console.warn("error moving a piece that dosent exist")
         return;
     }
-    pieceString += `${originalRow}${originalCol}${typeToText[originalPiece.type]}${colorToText[originalPiece.color]}`
+    pieceString += `${originalRow}${originalCol}${typeToChar[originalPiece.type]}${colorToChar[originalPiece.color]}`
 
     let newPiece = pieceArray[newRow][newCol];
     let isNewPiece = newPiece != null;
 
-    pieceString += `${newRow}${newCol}${isNewPiece ? typeToText[newPiece.type] : 'o'}${isNewPiece ? colorToText[newPiece.color] : 'o'}`;
+    pieceString += `${newRow}${newCol}${isNewPiece ? typeToChar[newPiece.type] : 'o'}${isNewPiece ? colorToChar[newPiece.color] : 'o'}`;
     
     return pieceString
 }
-//ts scuffed as fuck, if it works it works type shit o(n) time though
+
 function generatePreMoves(text){
     //text comes in the form of xy&xy&cxy&xy&... where xy == coords & = seperation between tiles and c = set flag from preMoves to preCaptures
     let preMoveTile = '';
@@ -199,6 +253,10 @@ function generatePreMoves(text){
             }
             availablePreMoves.push([parseInt(preMoveTile[0]),parseInt(preMoveTile[1])]);
             preMoveTile = '';
+            continue;
+        }
+        if(text[s] == "n"){
+            continue;
         }
         else{
             preMoveTile += text[s];
@@ -225,10 +283,17 @@ function clearSelected(){
 function generateImageText(piece){
     let imageString = "static/images/vintage/"
     imageString += piece.color =="White" ? "w" : "b";
-    imageString += typeToText[piece.type];
+    imageString += typeToChar[piece.type];
     imageString += ".png";
     return imageString;
 }
+
+//function assumesd it is already in char form
+function generateImageFromType(color,type){
+    return `static/images/vintage/${color}${type}.png`;
+}
+
+
 
 function clearPreMoves(){
     clearSelected();
@@ -245,18 +310,6 @@ function clearPreMoves(){
     availablePreMoves.length = 0;
 }
 
-const colorToText = {
-    'White' : 'w',
-    'Black' : 'b'
-}
-const typeToText = {
-    'Pawn' : 'p',
-    'Knight' : 'n',
-    'Bishop' : 'b',
-    'Rook' : 'r',
-    'Queen' : 'q',
-    'King' : 'k'
-}
 
 function placePiece(tile, color, type, row, col){
     pieceArray[row][col] = new Piece(color, type, [row, col]);
@@ -265,34 +318,24 @@ function placePiece(tile, color, type, row, col){
     tile.append(img);
 }
 
-const textToType = {
+const colorToChar = {
+    'White' : 'w',
+    'Black' : 'b'
+}
+const typeToChar = {
+    'Pawn' : 'p',
+    'Knight' : 'n',
+    'Bishop' : 'b',
+    'Rook' : 'r',
+    'Queen' : 'q',
+    'King' : 'k'
+}
+
+const charToType = {
     'q' : 'Queen',
     'r' : 'Rook',
     'b' : 'Bishop',
     'n' : 'Knight'
 }
 
-async function generatePromotion(color){
-    return new Promise((resolve) => {
-        const overlay = document.getElementById('promotionOverlay');
-        const container = document.getElementById('promotionContainer');
-        const prefix = color === 'White' ? 'w' : 'b';
-        const pieces = ['q', 'r', 'b', 'n'];
-
-        container.innerHTML = '';
-        pieces.forEach(p => {
-            const tile = document.createElement('div');
-            tile.classList.add('promotionTile');
-            const img = document.createElement('img');
-            img.src = `static/images/vintage/${prefix}${p}.png`;
-            tile.appendChild(img);
-            tile.addEventListener('click', () => {
-                overlay.classList.add('hidden');
-                resolve(p);
-            });
-            container.appendChild(tile);
-        });
-
-        overlay.classList.remove('hidden');
-    });
-}
+s

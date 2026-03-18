@@ -35,4 +35,6 @@ public:
 
     void generateBoard();
     void backRowPlace(int row, int col);
+
+    static std::unique_ptr<Piece> createPromotionPiece(PieceType type, ColorType color, std::pair<int,int> pos);
 };
