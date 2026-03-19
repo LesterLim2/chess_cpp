@@ -6,6 +6,7 @@
 Game::Game(Board& b,DangerMap& d): board(b),dangerMap(d){
     playerWhite = std::make_unique<Player>(ColorType::White);
     playerBlack = std::make_unique<Player>(ColorType::Black);
+    updateDangerMap();
 };
 
 std::string Game::preMove(int row, int col, ColorType color, PieceType type){
@@ -63,26 +64,14 @@ std::string Game::movePiece(std::string pieceString){
     int preRow = pre.row, preCol = pre.col;
     int postRow = post.row, postCol = post.col;
 
-    //remove dangerMap for captured piece if tile contains a piece
-    if(postMovePiece[3] != 'o' && postMovePiece[2] != 'o'){
-        ColorType capturedColor = charToColorType[postMovePiece[3]];
-        dangerMap.removeDanger(getMovementString(postRow, postCol), capturedColor);
-    }
-
-    //remove dangerMap for piece before movement
-    dangerMap.removeDanger(getMovementString(preRow, preCol), movingColor);
-
-    //movement of piece + update of dangerMap corresponding to the piece new position
     board.movePiece(preRow, preCol, postRow, postCol);
-    dangerMap.addDanger(getMovementString(postRow, postCol), movingColor);
+    updateDangerMap();
 
     std::pair<int,int>& kingCoordinates = movingColor == ColorType::White ? whiteKingCoordinates : blackKingCoordinates;
     if(movingPiece == PieceType::King){
         kingCoordinates = {postRow,postCol}; 
     }
     
-    updateBlockPieces(preRow,preCol,movingColor,postRow,postCol);
-
     
     std::string specialEvents = "";
 
@@ -157,7 +146,7 @@ std::string Game::handleCheck(std::pair<int,int> checkerCoordinates,PieceType ch
     std::string checkString = "";
     ColorType opponentColor = currentTurn == ColorType::White ? ColorType::Black : ColorType::White;
     std::pair<int,int>  oppKingCords = opponentColor == ColorType::White ? whiteKingCoordinates : blackKingCoordinates;
-    if(dangerMap.getDangerCount(oppKingCords.second,oppKingCords.first,opponentColor) > 0){
+    if(dangerMap.getDangerCount(oppKingCords.first,oppKingCords.second,opponentColor) > 0){
         checkString += getPossibleunCheckMoves(opponentColor, oppKingCords, checkerCoordinates, checkerType);
         checkString += "c";
     }
@@ -198,7 +187,33 @@ void Game::incrementTurn(){
     if(currentTurn == ColorType::White) turn++;
 }
 
+void Game::updateDangerMap(){
+    std::vector<std::vector<int>> dummyDMapWhite = dangerMap.createDummyDangerMap();
+    std::vector<std::vector<int>> dummyDMapBlack = dangerMap.createDummyDangerMap(); 
+    for(int row = 0; row < 8; row++){
+        for(int col = 0; col < 8; col++){
+            Piece* piece = board.getPiece(row,col);
+            if (piece == nullptr){
+                continue;
+            }
+            std::vector<std::vector<int>>& affectedDangerMap = piece->getColor() == ColorType::White ? dummyDMapWhite : dummyDMapBlack;
+            std::vector<std::pair<int,int>> dangerTiles = piece->getDanger(board);
 
+            for(auto& danger : dangerTiles){
+                affectedDangerMap[danger.first][danger.second]++;
+            }
+        }
+    }
+    dangerMap.setDangerMap(dummyDMapWhite,ColorType::White);
+    dangerMap.setDangerMap(dummyDMapBlack,ColorType::Black);
+    
+    std::cout<< "dangerMaps post movement" << std::endl;
+    std::cout << "white\n" <<std::endl;
+    dangerMap.stateDangerMap(ColorType::White);
+    std::cout << "black\n" <<std::endl;
+    dangerMap.stateDangerMap(ColorType::Black);
+    return;
+}
 
 //wtffff this is going to be a n^4 solution
 std::string Game::getPossibleunCheckMoves(ColorType opponentColor, std::pair<int,int> kingCoordinates, std::pair<int,int> checkerCoordinates, PieceType checkerType){

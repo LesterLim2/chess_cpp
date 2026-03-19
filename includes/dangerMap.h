@@ -30,4 +30,7 @@ public:
     void stateDangerMap(ColorType color);
     void initaliseDanger();
     void updateBlockPieces(Board& board, int row, int col, ColorType color, int skipRow = -1, int skipCol = -1);
+
+    std::vector<std::vector<int>> createDummyDangerMap();
+    void setDangerMap(std::vector<std::vector<int>> dummyDangerMap,ColorType color);
 };

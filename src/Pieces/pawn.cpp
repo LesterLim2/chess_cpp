@@ -56,5 +56,18 @@ std::string Pawn::checkMovement(Board& board){
 
 
 void Pawn::stateType(){
-    std::cout << "I am a pawn ";
+    std::cout << "I am a pawn " << std::endl;
+}
+std::vector<std::pair<int,int>> Pawn::getDanger(Board& board){
+    int row = position.first;
+    int col = position.second;
+    std::vector<std::pair<int,int>> dangerTiles = {};
+    for(auto& d : danger){
+        int curRow = row + d.second;
+        int curCol = col + d.first;
+        if(board.isInBounds(curRow,curCol)){
+            dangerTiles.push_back({curRow,curCol});
+        }
+    }
+    return dangerTiles;
 }

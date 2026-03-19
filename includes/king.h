@@ -13,4 +13,5 @@ public:
     std::string checkMovement(Board& board) override;
     std::string checkMovement(Board& board, DangerMap& dangerMap);
     std::string checkCastle(Board& board, DangerMap& dangerMap, std::string& availableCastles);
+    std::vector<std::pair<int,int>> getDanger(Board& board) override;
 };

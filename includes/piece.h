@@ -34,7 +34,7 @@ public:
 
     ColorType Piece::getColor();
 
-    virtual std::vector<std::pair<int,int>> getDanger();
+    virtual std::vector<std::pair<int,int>> getDanger(Board& board);
     std::vector<std::pair<int,int>> getDangerTiles();
     
     virtual std::string checkMovement(Board& board);

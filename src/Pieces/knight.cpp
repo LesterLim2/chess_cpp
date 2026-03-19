@@ -37,3 +37,17 @@ std::string Knight::checkMovement(Board& board){
     return result != "c" ? result : "None";
 }
 
+
+std::vector<std::pair<int,int>> Knight::getDanger(Board& board){
+    int row = position.first;
+    int col = position.second;
+    std::vector<std::pair<int,int>> dangerTiles = {};
+    for(auto& d : directions){
+        int curRow = row + d.second;
+        int curCol = col + d.first;
+        if(board.isInBounds(curRow,curCol)){
+            dangerTiles.push_back({curRow,curCol});
+        }
+    }
+    return dangerTiles;
+}

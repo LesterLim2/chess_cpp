@@ -46,6 +46,21 @@ std::string King::checkMovement(Board& board, DangerMap& dangerMap){
     return result != "c" ? result : "None";
 }
 
+std::vector<std::pair<int,int>> King::getDanger(Board& board){
+    int row = position.second;
+    int col = position.first;
+    std::vector<std::pair<int,int>> dangerTiles = {};
+    for(auto& d : directions){
+        int curRow = row + d.second;
+        int curCol = col + d.first;
+        if(board.isInBounds(curRow,curCol)){
+            dangerTiles.push_back({row,col});
+        }
+    }
+    return dangerTiles;
+}
+
+
 std::string King::checkCastle(Board& board, DangerMap& dangerMap, std::string& availableCastles){
     int castleRow = color == ColorType::White ? 0 : 7;
     for(int castleCol : castleCols){

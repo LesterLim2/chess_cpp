@@ -19,8 +19,23 @@ void Piece::stateType() {
     std::cout << "I am a generic piece\n";
 }
 
-std::vector<std::pair<int,int>> Piece::getDanger(){
-    return danger;
+std::vector<std::pair<int,int>> Piece::getDanger(Board& board){
+    int row = position.first;
+    int col = position.second;
+    std::vector<std::pair<int,int>> dangerTiles = {};
+    for(auto& dir: directions){
+        int curRow = row + dir.second;
+        int curCol = col + dir.first;
+        while(board.isInBounds(curRow,curCol)){
+            dangerTiles.push_back({curRow,curCol});
+            if(board.getPiece(curRow,curCol) != nullptr){
+                break;
+            }
+            curRow += dir.second;
+            curCol += dir.first;
+        }
+    }
+    return dangerTiles;
 }
 
 

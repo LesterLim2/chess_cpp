@@ -53,4 +53,6 @@ class Game{
         bool validatePawnPromotion(const PieceData& pieceData);
 
         std::string castling(const std::string& castleString);
+        
+        void updateDangerMap();
 };

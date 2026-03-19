@@ -9,7 +9,6 @@
 
 DangerMap::DangerMap()
     : dangerMapWhite(8,std::vector<int>(8,0)),dangerMapBlack(8,std::vector<int>(8,0)){
-        initaliseDanger();
     }
 
 
@@ -133,3 +132,12 @@ void DangerMap::stateDangerMap(ColorType color){
     }
 }
 
+
+std::vector<std::vector<int>>  DangerMap::createDummyDangerMap(){
+    return std::vector<std::vector<int>>(8, std::vector<int>(8, 0));
+}
+
+void DangerMap::setDangerMap(std::vector<std::vector<int>> dummyDangerMap,ColorType color){
+    std::vector<std::vector<int>>& selectedDangerMap = color == ColorType::White ? dangerMapWhite : dangerMapBlack;
+    selectedDangerMap = dummyDangerMap;
+}

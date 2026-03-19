@@ -20,4 +20,6 @@ public:
 
     void promotion(Board& board);
     std::string checkMovement(Board& board) override;
+    
+    std::vector<std::pair<int,int>> getDanger(Board& board) override;
 };
