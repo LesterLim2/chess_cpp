@@ -4,9 +4,6 @@
 #include <utility>
 #include <vector>
 
-class Board;
-class DangerMap;
-
 class Pawn : public Piece{
 private:
     std::vector<std::pair<std::pair<int,int>,moveType>> availableSquaresToMove = {};

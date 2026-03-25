@@ -38,7 +38,7 @@ class Game{
         std::string getMovementString(int row,int col);
         void incrementTurn();
         bool isValidatedPiece(Piece* piece, int row, int col, ColorType color, PieceType type);
-        bool validatePieceMovement(const PieceData& pd);
+        bool validatePieceMovement(const PieceData& pieceData);
         
         PieceData parsePieceString(const std::string& s);
         std::string movePiece(std::string pieceString);
@@ -46,7 +46,8 @@ class Game{
         std::string simulateUncheckMoves(Piece* currentPiece, std::pair<int,int> kingCoordinates, std::pair<int,int> checkerCoordinates, PieceType checkerType);
 
         void updateBlockPieces(int preRow,int preCol,ColorType movingColor,int postRow,int postCol);
-        std::string handleCheck(std::pair<int,int>,PieceType checkerType);
+        std::string handleCheck(ColorType checkedColor);
+        std::string handleMultipleCheck(std::pair<int,int>& attackedKingCoordinates,ColorType movingColor);
         std::string checkEnPassant(int row, int col, ColorType color);
 
         std::string pawnPromotion(const std::string& promotionPiece);
@@ -54,5 +55,6 @@ class Game{
 
         std::string castling(const std::string& castleString);
         
+        std::string simulateUncheckMoves(Piece* piece, std::vector<std::vector<int>> simulatedDangerMap,std::vector<std::vector<std::unique_ptr<Piece>>> simulatedBoard);
         void updateDangerMap();
 };

@@ -67,26 +67,98 @@ std::string Game::movePiece(std::string pieceString){
     board.movePiece(preRow, preCol, postRow, postCol);
     updateDangerMap();
 
+    //
     std::pair<int,int>& kingCoordinates = movingColor == ColorType::White ? whiteKingCoordinates : blackKingCoordinates;
     if(movingPiece == PieceType::King){
         kingCoordinates = {postRow,postCol}; 
     }
-    
-    
-    std::string specialEvents = "";
+    std::pair<int,int>& attackedKingCoordinates = movingColor == ColorType::White ? whiteKingCoordinates : blackKingCoordinates;
+    int checkedCount = dangerMap.getDangerCount(attackedKingCoordinates.second,attackedKingCoordinates.first,movingColor);
 
-    if(movingPiece == PieceType::Pawn){
-        if(std::abs(preRow - postRow) == 2){
-            Piece*& target = movingColor == ColorType::White ? enPassantTargetWhite : enPassantTargetBlack;
-            int& counter = movingColor == ColorType::White ? enPassantCounterWhite : enPassantCounterBlack;
-            target  = board.getPiece(postRow, postCol);
-            counter = 1;
+    switch(checkedCount){
+        case(0):
+            break;
+        case(1):
+            handleCheck();
+            break;
+        default:
+            handleMultipleCheck(attackedKingCoordinates,movingColor);
+            break
+    }
+    if (dangerMap.getDangerCount( attackedKingCoordinates.second,attackedKingCoordinates.first,movingColor) == 1){
+        std::string checkString = handleCheck(movingColor);
+    };
+    incrementTurn();
+    return "";
+}
+
+std::string Game::handleMultipleCheck(std::pair<int,int>& attackedKingCoordinates,ColorType movingColor){
+    Piece* king = board.getPiece(attackedKingCoordinates.second,attackedKingCoordinates.first);
+    if(king->getType() != PieceType::King){
+        throw std::runtime_error("ERROR coordinates does not contain KIng");
+    }
+    std::string kingMovementString = king->checkMovement(board);
+    int orignalRow = attackedKingCoordinates.second;
+    int originalCol = attackedKingCoordinates.first;
+    bool isCapturing = true;
+    std::string kingAvailableMoves = "";
+    std::string kingAvailableCaptures = "c";
+
+    if(kingMovementString[-1] != 'c'){
+        std::vector<std::vector<int>> originalDangerMap = dangerMap.getDangerMap(movingColor);
+    }
+    for(int i = 0; i < kingMovementString.size(); i++){
+        if(kingMovementString[i] == 'c'){
+            isCapturing = true;
+            continue;
+        }
+        if(kingMovementString[i] == '&'){
+            int moveRow = static_cast<int>(kingMovementString[i-2]);
+            int moveCol = static_cast<int>(kingMovementString[i-1]);
+            if(!isCapturing){
+                if (dangerMap.getDangerCount(moveRow,moveCol,movingColor) == 0){
+                    kingAvailableMoves += kingMovementString.substr(i-2,3);
+                }
+            }
+            if(isCapturing){
+                Piece* piece = board.getPiece(moveRow,moveCol);
+                if(piece == nullptr){
+                    throw("error capturing a piece that does exist @game::handlemultiplecheck");
+                }
+                //simulateMovement
+                board.movePiece(orignalRow,originalCol,moveRow,moveCol);
+                updateDangerMap();
+
+                if(dangerMap.getDangerCount(moveRow,moveCol,movingColor) == 0){
+                    kingAvailableCaptures += kingMovementString.substr(i-2,3);
+                }
+                //move King back to original position.
+                board.movePiece(moveRow,moveCol,orignalRow,originalCol);
+                //restore captured piece.
+                board.placePiece()...
+                dangerMap.setDangerMap(originalDangerMap,movingColor);
+            }
         }
     }
-    specialEvents += handleCheck({postRow,postCol},movingPiece);   
-    incrementTurn();
-    return specialEvents;
 }
+std::string Game::handleCheck(ColorType checkedColor){
+    std::string uncheckPiecesString = "";
+    for(int row = 0 ; row < 8;row++){
+        for(int  col = 0;col < 8;col++){
+            Piece* piece = board.getPiece(row,col);
+            if(piece == nullptr) continue;
+            if(piece->getColor() != checkedColor) continue;
+
+            std::vector<std::vector<int>> simulatedDangerMap = dangerMap.getDangerMap(checkedColor);
+            std::vector<std::vector<std::unique_ptr<Piece>>> simulatedBoard = board.getBoard();
+            auto [originalRow,originalCol] = piece->getPosition();
+
+            simulateUncheckMoves(piece,simulatedDangerMap,simulatedBoard);
+        }
+    }
+
+}
+
 
 std::string Game::pawnPromotion(const std::string& promotionPiece){
     PieceData promotedPieceData = parsePieceString(promotionPiece);
@@ -98,10 +170,10 @@ std::string Game::pawnPromotion(const std::string& promotionPiece){
         std::cerr << "Exception occured: " << e.what() << std::endl;
         return "invalidated";
     }
-    //toDO danger map update.
     board.removePiece(board.getPiece(promotedPieceData.row,promotedPieceData.col));
     board.placePiece(board.createPromotionPiece(promotedPieceData.type, promotedPieceData.color, {promotedPieceData.row, promotedPieceData.col}));
-    return "validated";
+    updateDangerMap();
+    return "";
 }
 
 std::string Game::castling(const std::string& castleString){
@@ -124,6 +196,7 @@ std::string Game::castling(const std::string& castleString){
     //rook movement
     board.movePiece(rookData.row,rookData.col,rookData.row,rookDestCol);
     
+    updateDangerMap();
     incrementTurn();
     return "validated";
     //toDO dangerMapupdate
@@ -140,17 +213,6 @@ void Game::updateBlockPieces(int preRow,int preCol,ColorType movingColor,int pos
     dangerMap.stateDangerMap(ColorType::White);
     std::cout << "black\n" <<std::endl;
     dangerMap.stateDangerMap(ColorType::Black);
-}
-
-std::string Game::handleCheck(std::pair<int,int> checkerCoordinates,PieceType checkerType){
-    std::string checkString = "";
-    ColorType opponentColor = currentTurn == ColorType::White ? ColorType::Black : ColorType::White;
-    std::pair<int,int>  oppKingCords = opponentColor == ColorType::White ? whiteKingCoordinates : blackKingCoordinates;
-    if(dangerMap.getDangerCount(oppKingCords.first,oppKingCords.second,opponentColor) > 0){
-        checkString += getPossibleunCheckMoves(opponentColor, oppKingCords, checkerCoordinates, checkerType);
-        checkString += "c";
-    }
-    return checkString;
 }
 
 
@@ -215,34 +277,6 @@ void Game::updateDangerMap(){
     return;
 }
 
-//wtffff this is going to be a n^4 solution
-std::string Game::getPossibleunCheckMoves(ColorType opponentColor, std::pair<int,int> kingCoordinates, std::pair<int,int> checkerCoordinates, PieceType checkerType){
-    std::string possibleunCheckMoves = "";
-    for(int i = 0; i < 8 ; i++){
-        for(int j = 0; j < 8; j++){
-            Piece* currentPiece = board.getPiece(i,j);
-            if(currentPiece == nullptr){
-                continue;
-            }
-            if(currentPiece->getColor() == opponentColor ){
-                std::string possibleUncheckMoves = simulateUncheckMoves(currentPiece, kingCoordinates, checkerCoordinates, checkerType);
-                if(possibleUncheckMoves.length() > 0){
-                    possibleunCheckMoves += j - '0';
-                    possibleunCheckMoves += i - '0';
-                    possibleunCheckMoves += 'e'; 
-                    possibleunCheckMoves += possibleUncheckMoves;
-                }
-            }
-        }
-    }
-    return "";
-}
-
-std::string Game::simulateUncheckMoves(Piece* currentPiece, std::pair<int,int> kingCoordinates, std::pair<int,int> checkerCoordinates, PieceType checkerType){
-    std::string availablePieceMoves = currentPiece->checkMovement(board);
-    std::cout << "im at simulateUncheckMoves" << availablePieceMoves << std::endl;
-    return "";
-}
 
 
 bool Game::isValidatedPiece(Piece* piece, int row, int col, ColorType color, PieceType type){

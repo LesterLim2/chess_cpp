@@ -47,14 +47,14 @@ std::string King::checkMovement(Board& board, DangerMap& dangerMap){
 }
 
 std::vector<std::pair<int,int>> King::getDanger(Board& board){
-    int row = position.second;
-    int col = position.first;
+    int row = position.first;
+    int col = position.second;
     std::vector<std::pair<int,int>> dangerTiles = {};
     for(auto& d : directions){
         int curRow = row + d.second;
         int curCol = col + d.first;
         if(board.isInBounds(curRow,curCol)){
-            dangerTiles.push_back({row,col});
+            dangerTiles.push_back({curRow,curCol});
         }
     }
     return dangerTiles;

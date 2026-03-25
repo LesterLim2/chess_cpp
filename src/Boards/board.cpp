@@ -33,6 +33,9 @@ void Board::movePiece(int originalX, int originalY, int newX, int newY) {
     stateBoard();
 }
 
+std::vector<std::vector<std::unique_ptr<Piece>>>  Board::getBoard(){
+    return board;
+}
 
 bool Board::checkSquareAvailability(int x, int y) {
     if (!isInBounds(x, y)) {
